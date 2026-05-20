@@ -6,12 +6,12 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;color:#1e293b;font-size:15px;height:100vh;display:flex;flex-direction:column}
-.top-nav{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 20px;display:flex;align-items:center;height:52px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.nav-logo{font-size:14px;font-weight:900;color:#0ea5e9;margin-right:24px}
-.nav-tabs{display:flex;height:100%;gap:2px}
-.nav-tab{padding:0 16px;height:100%;display:flex;align-items:center;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;font-size:14px;font-weight:600;white-space:nowrap;transition:all .15s}
+	.top-nav{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 12px;display:flex;align-items:center;height:52px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+	.nav-logo{font-size:14px;font-weight:900;color:#0ea5e9;margin-right:10px;flex-shrink:0}
+	.nav-tabs{display:flex;height:100%;gap:2px;overflow-x:auto;min-width:0;flex:1}
+	.nav-tab{padding:0 11px;height:100%;display:flex;align-items:center;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;font-size:13px;font-weight:600;white-space:nowrap;transition:all .15s;flex-shrink:0}
 .nav-tab:hover,.nav-tab.active{color:#0ea5e9;border-bottom-color:#0ea5e9;background:#f0f9ff}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:#64748b}
+	.nav-right{margin-left:10px;display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;flex-shrink:0;white-space:nowrap}
 .live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;display:inline-block;margin-right:4px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .panel{display:none;flex:1;overflow:hidden;flex-direction:column}
@@ -744,10 +744,60 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
 .liff-field-group label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px}
 .liff-field-group input,.liff-field-group select,.liff-field-group textarea{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:12px;color:#1e293b}
 .liff-section-hdr{font-size:12px;font-weight:800;color:#0ea5e9;border-bottom:1px solid #dbeafe;padding-bottom:4px;margin-bottom:8px}
-.liff-chip-row{display:flex;gap:6px;flex-wrap:wrap}
-.liff-chip{padding:5px 12px;border-radius:20px;border:1px solid #e2e8f0;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;background:#f8fafc;color:#475569}
-.liff-chip:hover,.liff-chip.sel{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
-</style>
+	.liff-chip-row{display:flex;gap:6px;flex-wrap:wrap}
+	.liff-chip{padding:5px 12px;border-radius:20px;border:1px solid #e2e8f0;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;background:#f8fafc;color:#475569}
+	.liff-chip:hover,.liff-chip.sel{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+
+	/* ══ TAB: 矯正諮詢價值與效期追蹤 ══ */
+	#panel-ortho-consult{background:#f8fafc;overflow:hidden}
+	#panel-ortho-consult.active{display:grid!important;grid-template-columns:300px 1fr 320px;height:calc(100vh - 52px)}
+	.oc-left{background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden}
+	.oc-mid{display:flex;flex-direction:column;overflow:hidden}
+	.oc-right{background:#fff;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden}
+	.oc-hdr{padding:16px 18px;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+	.oc-title{font-size:16px;font-weight:900;color:#1e293b;margin-bottom:5px}
+	.oc-sub{font-size:12px;color:#64748b;line-height:1.5}
+	.oc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#fff;flex-shrink:0}
+	.oc-kpi{border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;background:#f8fafc}
+	.oc-kpi-num{font-size:22px;font-weight:900;color:#0f172a}
+	.oc-kpi-label{font-size:11px;color:#64748b;font-weight:700;margin-top:2px}
+	.oc-toolbar{display:flex;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid #e2e8f0;background:#fff;flex-shrink:0}
+	.oc-risk-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid #f1f5f9}
+	.oc-risk-tab{font-size:12px;font-weight:800;border:1px solid #e2e8f0;border-radius:20px;background:#f8fafc;color:#64748b;padding:5px 10px;cursor:pointer}
+	.oc-risk-tab.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+	.oc-list{overflow-y:auto;flex:1}
+	.oc-item{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;border-left:4px solid transparent}
+	.oc-item:hover{background:#f8fafc}
+	.oc-item.active{background:#f0f9ff;border-left-color:#0ea5e9}
+	.oc-item.red{border-left-color:#ef4444}.oc-item.amber{border-left-color:#f59e0b}.oc-item.green{border-left-color:#22c55e}.oc-item.blue{border-left-color:#0ea5e9}
+	.oc-name{font-size:14px;font-weight:900;color:#1e293b}
+	.oc-meta{font-size:11px;color:#64748b;margin-top:4px;display:flex;gap:6px;flex-wrap:wrap}
+	.oc-money{font-size:12px;color:#0f766e;font-weight:900;margin-top:6px}
+	.oc-body{padding:18px;overflow-y:auto;flex:1}
+	.oc-section{background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:14px;overflow:hidden}
+	.oc-section-h{padding:11px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;font-weight:900;color:#1e293b;background:#f8fafc;display:flex;justify-content:space-between;align-items:center}
+	.oc-section-b{padding:14px}
+	.oc-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+	.oc-field label{display:block;font-size:11px;font-weight:800;color:#64748b;margin-bottom:4px}
+	.oc-field input,.oc-field select,.oc-field textarea{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:13px;background:#fff;color:#1e293b}
+	.oc-field textarea{min-height:70px;resize:vertical}
+	.oc-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+	.oc-check{border:1px solid #e2e8f0;border-radius:7px;padding:8px 9px;background:#f8fafc;font-size:12px;color:#475569;display:flex;gap:6px;align-items:center}
+	.oc-timeline{display:flex;flex-direction:column;gap:8px}
+	.oc-line-step{display:grid;grid-template-columns:60px 1fr auto;gap:10px;align-items:center;border:1px solid #e2e8f0;border-radius:7px;padding:8px 10px;background:#fff}
+	.oc-line-day{font-size:12px;font-weight:900;color:#0ea5e9}
+	.oc-line-main{font-size:12px;color:#1e293b;font-weight:700}
+	.oc-line-sub{font-size:11px;color:#64748b;margin-top:2px}
+	.oc-value-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+	.oc-value{border:1px solid #e2e8f0;border-radius:7px;padding:9px 10px;background:#f8fafc;font-size:12px;color:#475569}
+	.oc-value strong{display:block;color:#1e293b;margin-bottom:3px}
+	.oc-script-list{overflow-y:auto;flex:1;padding:12px}
+	.oc-script{border:1px solid #e2e8f0;border-radius:8px;padding:11px 12px;margin-bottom:10px;background:#f8fafc;cursor:pointer}
+	.oc-script:hover,.oc-script.active{border-color:#0ea5e9;background:#f0f9ff}
+	.oc-script-title{font-size:12px;font-weight:900;color:#1e293b;margin-bottom:5px}
+	.oc-script-text{font-size:12px;color:#475569;line-height:1.6;white-space:pre-line}
+	.oc-action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+	</style>
 </head>
 <body>
 <div class="top-nav">
@@ -756,9 +806,10 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
     <div class="nav-tab active" onclick="showPanel('today')">🎯 今日戰情</div>
     <div class="nav-tab" onclick="showPanel('calendar')">📅 約診行事曆</div>
     <div class="nav-tab" onclick="showPanel('patients')">👥 病患管理</div>
-    <div class="nav-tab" onclick="showPanel('billing')">💰 收費系統</div>
-    <div class="nav-tab" onclick="showPanel('reports')">📊 財務報表</div>
-    <div class="nav-tab" onclick="showPanel('schedule')">⚙️ 班表設定</div>
+	    <div class="nav-tab" onclick="showPanel('billing')">💰 收費系統</div>
+	    <div class="nav-tab" onclick="showPanel('reports')">📊 財務報表</div>
+	    <div class="nav-tab" onclick="showPanel('ortho-consult')">🦷 矯正諮詢</div>
+	    <div class="nav-tab" onclick="showPanel('schedule')">⚙️ 班表設定</div>
     <div class="nav-tab" onclick="showPanel('recall')">📣 召回系統</div>
     <div class="nav-tab" onclick="showPanel('line')">💬 LINE訊息 <span style="background:#ef4444;color:#fff;border-radius:8px;padding:1px 6px;font-size:10px;font-weight:900;margin-left:4px">3</span></div>
     <div class="nav-tab" onclick="showPanel('checkin')">🕐 員工打卡</div>
@@ -2153,6 +2204,199 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
           <button class="btn btn-ghost btn-xs" onclick="showToast('複製電話','info')">📞</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: 矯正諮詢價值與效期追蹤 ══ -->
+<div class="panel" id="panel-ortho-consult">
+  <div class="oc-left">
+    <div class="oc-hdr">
+      <div class="oc-title">🦷 矯正諮詢追蹤</div>
+      <div class="oc-sub">評估套組、七天抵扣、六個月效期與 LINE 跟進</div>
+    </div>
+    <div class="oc-risk-tabs">
+      <button class="oc-risk-tab active" onclick="filterOrthoConsult('all',this)">全部</button>
+      <button class="oc-risk-tab" onclick="filterOrthoConsult('new',this)">七天內</button>
+      <button class="oc-risk-tab" onclick="filterOrthoConsult('urgent',this)">即將到期</button>
+      <button class="oc-risk-tab" onclick="filterOrthoConsult('confirmed',this)">已確認</button>
+    </div>
+    <div class="oc-list" id="ocList">
+      <div class="oc-item active blue" data-status="new" onclick="selectOrthoConsult(this,'adult')">
+        <div class="oc-name">張○婷 <span class="tag tag-ortho">ADULT</span></div>
+        <div class="oc-meta"><span>5/20 評估</span><span>D+0</span><span>七天抵扣中</span></div>
+        <div class="oc-money">齒顎矯正完整評估套組 NT$5,000</div>
+      </div>
+      <div class="oc-item red" data-status="urgent" onclick="selectOrthoConsult(this,'child')">
+        <div class="oc-name">林○安 <span class="tag tag-early">CHILD</span></div>
+        <div class="oc-meta"><span>11/25 到期</span><span>剩 5 天</span><span>家長考慮中</span></div>
+        <div class="oc-money">兒童早期矯正評估套組 NT$2,000</div>
+      </div>
+      <div class="oc-item amber" data-status="urgent" onclick="selectOrthoConsult(this,'tmj')">
+        <div class="oc-name">陳○芳 <span class="tag tag-tmj">TMJ</span></div>
+        <div class="oc-meta"><span>12/04 到期</span><span>剩 14 天</span><span>費用顧慮</span></div>
+        <div class="oc-money">顳顎關節完整評估套組 NT$5,000</div>
+      </div>
+      <div class="oc-item green" data-status="confirmed" onclick="selectOrthoConsult(this,'confirmed')">
+        <div class="oc-name">王○明 <span class="tag tag-confirmed">已確認</span></div>
+        <div class="oc-meta"><span>5/18 確認</span><span>已抵扣</span><span>下次取資料</span></div>
+        <div class="oc-money">評估費 NT$5,000 已抵扣總費用</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="oc-mid">
+    <div class="oc-kpis">
+      <div class="oc-kpi"><div class="oc-kpi-num">6</div><div class="oc-kpi-label">七天內待確認</div></div>
+      <div class="oc-kpi"><div class="oc-kpi-num" style="color:#ef4444">3</div><div class="oc-kpi-label">14天內到期</div></div>
+      <div class="oc-kpi"><div class="oc-kpi-num" style="color:#16a34a">8</div><div class="oc-kpi-label">本月確認治療</div></div>
+      <div class="oc-kpi"><div class="oc-kpi-num" style="color:#f59e0b">42%</div><div class="oc-kpi-label">初診轉換率</div></div>
+    </div>
+    <div class="oc-toolbar">
+      <button class="btn btn-primary btn-sm" onclick="showOrthoConsultView('create')">＋ 建立評估紀錄</button>
+      <button class="btn btn-line btn-sm" onclick="previewOrthoLine('consult_done_adult')">發送理念卡</button>
+      <button class="btn btn-success btn-sm" onclick="showOrthoConsultView('confirm')">標記已確認</button>
+      <button class="btn btn-ghost btn-sm" onclick="showOrthoConsultView('value')">評估套組價值</button>
+    </div>
+    <div class="oc-body">
+      <div id="oc-view-detail">
+        <div class="oc-section">
+          <div class="oc-section-h"><span id="ocDetailTitle">張○婷｜成人矯正諮詢</span><span class="tag tag-pending" id="ocDetailStatus">七天抵扣中</span></div>
+          <div class="oc-section-b">
+            <div class="oc-grid2">
+              <div class="oc-field"><label>評估套組</label><input id="ocPackageName" value="齒顎矯正 / 顳顎關節完整評估套組" readonly></div>
+              <div class="oc-field"><label>已付評估費</label><input id="ocEvalFee" value="NT$5,000，可於 5/27 前抵扣" readonly></div>
+              <div class="oc-field"><label>六個月效期</label><input id="ocExpireDate" value="2026-11-16" readonly></div>
+              <div class="oc-field"><label>目前顧慮</label><select id="ocConcern"><option>尚未回覆</option><option>費用顧慮</option><option>時間顧慮</option><option>家人討論中</option></select></div>
+            </div>
+            <div class="oc-action-row">
+              <button class="btn btn-line btn-sm" onclick="previewOrthoLine('w1_adult')">LINE 抵扣提醒</button>
+              <button class="btn btn-ghost btn-sm" onclick="showToast('已記錄：家人討論中','info')">記錄顧慮</button>
+              <button class="btn btn-success btn-sm" onclick="confirmOrthoTreatment()">確認治療</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="oc-section">
+          <div class="oc-section-h">效期與跟進時間軸</div>
+          <div class="oc-section-b">
+            <div class="oc-timeline">
+              <div class="oc-line-step"><div class="oc-line-day">D+0</div><div><div class="oc-line-main">諮詢完成</div><div class="oc-line-sub">發理念說明三連卡與評估摘要</div></div><span class="tag tag-confirmed">已發送</span></div>
+              <div class="oc-line-step"><div class="oc-line-day">D+3</div><div><div class="oc-line-main">流程懶人包</div><div class="oc-line-sub">補送矯正流程與常見 Q&A</div></div><span class="tag tag-pending">待排程</span></div>
+              <div class="oc-line-step"><div class="oc-line-day">D+7</div><div><div class="oc-line-main">抵扣到期提醒</div><div class="oc-line-sub">2,000 / 5,000 評估費最後抵扣日</div></div><button class="btn btn-line btn-xs" onclick="previewOrthoLine('w1_adult')">預覽</button></div>
+              <div class="oc-line-step"><div class="oc-line-day">D+120</div><div><div class="oc-line-main">效期警示</div><div class="oc-line-sub">提醒評估資料兩個月後到期</div></div><button class="btn btn-ghost btn-xs" onclick="previewOrthoLine('m4')">預覽</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="oc-section">
+          <div class="oc-section-h">評估套組交付物</div>
+          <div class="oc-section-b">
+            <div class="oc-value-list">
+              <div class="oc-value"><strong>X 光拍攝</strong>已完成，作為診斷基礎</div>
+              <div class="oc-value"><strong>數位口掃 + 口外照</strong>已完成，可產出報告</div>
+              <div class="oc-value"><strong>醫師一對一評估</strong>20-30 分鐘完整說明</div>
+              <div class="oc-value"><strong>個人口顎評估報告</strong>PDF，諮詢當天提供</div>
+              <div class="oc-value"><strong>客製化衛教資料包</strong>依兒童 / 成人 / TMJ 分流</div>
+              <div class="oc-value"><strong>六個月資料效期</strong>過期需重新評估</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="oc-view-create" style="display:none">
+        <div class="oc-section">
+          <div class="oc-section-h">建立矯正諮詢評估紀錄</div>
+          <div class="oc-section-b">
+            <div class="oc-grid2">
+              <div class="oc-field"><label>患者姓名</label><input id="ocNewName" value="張○婷"></div>
+              <div class="oc-field"><label>評估當日年齡</label><input id="ocNewAge" type="number" value="28" oninput="calcOrthoPackage()"></div>
+              <div class="oc-field"><label>諮詢日期</label><input id="ocNewDate" type="date" value="2026-05-20" onchange="calcOrthoPackage()"></div>
+              <div class="oc-field"><label>系統判斷</label><input id="ocNewType" value="ADULT｜NT$5,000" readonly></div>
+            </div>
+            <div style="height:12px"></div>
+            <div class="oc-checks">
+              <label class="oc-check"><input type="checkbox" checked> X 光拍攝</label>
+              <label class="oc-check"><input type="checkbox" checked> 數位口掃</label>
+              <label class="oc-check"><input type="checkbox" checked> 口外照片</label>
+              <label class="oc-check"><input type="checkbox" checked> 醫師評估說明</label>
+              <label class="oc-check"><input type="checkbox"> 個人口顎評估報告 PDF</label>
+              <label class="oc-check"><input type="checkbox"> 客製化衛教資料包</label>
+            </div>
+            <div class="oc-action-row">
+              <button class="btn btn-primary" onclick="createOrthoConsult(false)">建立紀錄</button>
+              <button class="btn btn-line" onclick="createOrthoConsult(true)">建立並發送 LINE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="oc-view-confirm" style="display:none">
+        <div class="oc-section">
+          <div class="oc-section-h">確認治療與評估費抵扣</div>
+          <div class="oc-section-b">
+            <div class="oc-grid2">
+              <div class="oc-field"><label>矯正總費用</label><input id="ocTotalFee" value="180000"></div>
+              <div class="oc-field"><label>抵扣評估費</label><select id="ocDiscount"><option>全額抵扣 NT$5,000</option><option>全額抵扣 NT$2,000</option><option>不抵扣</option></select></div>
+              <div class="oc-field"><label>下次預約日期</label><input type="date" value="2026-05-28"></div>
+              <div class="oc-field"><label>下次流程</label><select><option>取進階資料 + 簽同意書 + 第一階段付款</option><option>再諮詢確認</option><option>裝置配戴</option></select></div>
+            </div>
+            <div class="oc-action-row">
+              <button class="btn btn-success" onclick="confirmOrthoTreatment()">完成確認</button>
+              <button class="btn btn-line" onclick="previewOrthoLine('confirmed')">預覽確認 LINE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="oc-view-value" style="display:none">
+        <div class="oc-section">
+          <div class="oc-section-h">對外價值呈現：從諮詢費改成評估套組</div>
+          <div class="oc-section-b">
+            <div class="oc-value-list">
+              <div class="oc-value"><strong>舊稱：諮詢費</strong>患者容易理解成花錢聽人說話</div>
+              <div class="oc-value"><strong>新稱：評估套組</strong>患者看見 X 光、口掃、報告、衛教資料</div>
+              <div class="oc-value"><strong>兒童 NT$2,000</strong>11 歲以下，早期口顎發育評估</div>
+              <div class="oc-value"><strong>成人 NT$5,000</strong>12 歲以上，齒顎矯正 / TMJ 完整評估</div>
+              <div class="oc-value"><strong>七天內全額抵扣</strong>創造明確決策節點</div>
+              <div class="oc-value"><strong>六個月資料效期</strong>讓後續跟進有醫療理由</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="oc-right">
+    <div class="oc-hdr">
+      <div class="oc-title">💬 LINE 腳本預覽</div>
+      <div class="oc-sub">依年齡層與時間點切換模板</div>
+    </div>
+    <div class="oc-script-list">
+      <div class="oc-script active" onclick="previewOrthoLine('consult_done_adult')">
+        <div class="oc-script-title">諮詢完成｜成人理念卡</div>
+        <div class="oc-script-text">功能性矯正不是只排整齊牙齒，也會一起評估呼吸道、口顎功能與長期健康。</div>
+      </div>
+      <div class="oc-script" onclick="previewOrthoLine('w1_child')">
+        <div class="oc-script-title">D+7｜兒童抵扣提醒</div>
+        <div class="oc-script-text">兒童早期矯正評估費 2,000 元，明天是最後抵扣日。</div>
+      </div>
+      <div class="oc-script" onclick="previewOrthoLine('w1_adult')">
+        <div class="oc-script-title">D+7｜成人抵扣提醒</div>
+        <div class="oc-script-text">齒顎矯正完整評估費 5,000 元，明天是最後抵扣日。</div>
+      </div>
+      <div class="oc-script" onclick="previewOrthoLine('m4')">
+        <div class="oc-script-title">D+120｜效期警示</div>
+        <div class="oc-script-text">評估資料兩個月後到期，超過六個月需重新評估。</div>
+      </div>
+      <div class="oc-script" onclick="previewOrthoLine('encourage')">
+        <div class="oc-script-title">治療中｜配合度鼓勵</div>
+        <div class="oc-script-text">趙醫師表揚這次配合度很好，治療有機會提早完成。</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #e2e8f0;padding:14px">
+      <div class="oc-field"><label>訊息內容</label><textarea id="ocLinePreview">張○婷您好，您今天完成的是齒顎矯正完整評估套組。這份資料包含 X 光、口掃、口外照片與趙醫師完整評估，六個月內有效。</textarea></div>
+      <button class="btn btn-line" style="width:100%;justify-content:center;margin-top:10px" onclick="showToast('LINE 訊息已加入待發送','success')">加入待發送</button>
     </div>
   </div>
 </div>
@@ -3987,7 +4231,7 @@ function callInPatient(btn){
 	function showPanel(id){
 	  const key=String(id||'').replace(/^panel-/,'');
 	  const panel=document.getElementById('panel-'+key);
-	  const tabs=['today','calendar','patients','billing','reports','schedule','recall','line','checkin'];
+	  const tabs=['today','calendar','patients','billing','reports','ortho-consult','schedule','recall','line','checkin'];
 	  const tabIdx=tabs.indexOf(key);
 	  const navTabs=document.querySelectorAll('.nav-tab');
 	  if(!panel||tabIdx<0||!navTabs[tabIdx]){
@@ -4168,7 +4412,8 @@ function previewTmpl(btn){
 	  {icon:'📆',name:'約診行事曆',sub:'週行程總覽',badge:'頁面',bc:'#fef9c3',bt:'#854d0e',action:()=>{closeGSearch();showPanel('calendar');}},
 	  {icon:'👥',name:'病患管理',sub:'搜尋病患資料庫',badge:'頁面',bc:'#fef9c3',bt:'#854d0e',action:()=>{closeGSearch();showPanel('patients');}},
 	  {icon:'📊',name:'財務報表',sub:'月收入、損益分析',badge:'頁面',bc:'#fef9c3',bt:'#854d0e',action:()=>{closeGSearch();showPanel('reports');}},
-  {icon:'👤',name:'陳○芳',sub:'TMJ 複診#11 · 2026-05-15',badge:'TMJ',bc:'#ede9fe',bt:'#6d28d9',action:()=>{closeGSearch();showToast('開啟 陳○芳 病歷','info');}},
+	  {icon:'🦷',name:'矯正諮詢',sub:'評估套組、七天抵扣、六個月效期追蹤',badge:'頁面',bc:'#ccfbf1',bt:'#0f766e',action:()=>{closeGSearch();showPanel('ortho-consult');}},
+	  {icon:'👤',name:'陳○芳',sub:'TMJ 複診#11 · 2026-05-15',badge:'TMJ',bc:'#ede9fe',bt:'#6d28d9',action:()=>{closeGSearch();showToast('開啟 陳○芳 病歷','info');}},
   {icon:'👤',name:'王○明',sub:'恆牙矯正 複診#18 · 2026-05-19',badge:'矯正',bc:'#dbeafe',bt:'#1d4ed8',action:()=>{closeGSearch();showToast('開啟 王○明 病歷','info');}},
   {icon:'👤',name:'方○霞',sub:'TMJ 初診★ · 2026-05-20',badge:'TMJ',bc:'#ede9fe',bt:'#6d28d9',action:()=>{closeGSearch();showToast('開啟 方○霞 病歷','info');}},
   {icon:'👤',name:'林○欣',sub:'隱適美 複診#3 · 2026-05-19',badge:'矯正',bc:'#dbeafe',bt:'#1d4ed8',action:()=>{closeGSearch();showToast('開啟 林○欣 病歷','info');}},
@@ -4180,10 +4425,10 @@ function previewTmpl(btn){
 	  if(!res)return;
 	  gsIdx=-1;
   if(!q.trim()){
-    res.innerHTML=`<div class="gsearch-section">快速動作</div>`+
-      GSEARCH_ALL.slice(0,5).map(itemHtml).join('')+
-      `<div class="gsearch-section">病患 — 近期</div>`+
-      GSEARCH_ALL.slice(6,9).map(itemHtml).join('');
+	    res.innerHTML=`<div class="gsearch-section">快速動作</div>`+
+	      GSEARCH_ALL.slice(0,7).map(itemHtml).join('')+
+	      `<div class="gsearch-section">病患 — 近期</div>`+
+	      GSEARCH_ALL.slice(7,10).map(itemHtml).join('');
     return;
   }
   const hits=GSEARCH_ALL.filter(x=>x.name.includes(q)||x.sub.includes(q)||x.badge.includes(q));
@@ -4222,12 +4467,93 @@ function previewTmpl(btn){
 	  if(e.key==='Escape'&&document.getElementById('gsearchOv')?.classList.contains('open')){closeGSearch();}
 	});
 
-function selectOneChip(el,groupId){
-  document.querySelectorAll('#'+groupId+' .mf-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-}
+	function selectOneChip(el,groupId){
+	  document.querySelectorAll('#'+groupId+' .mf-chip').forEach(c=>c.classList.remove('active'));
+	  el.classList.add('active');
+	}
 
-// ══ 新增病患 ══
+	// ══ 矯正諮詢價值與效期追蹤 ══
+	function showOrthoConsultView(view){
+	  ['detail','create','confirm','value'].forEach(v=>{
+	    const el=document.getElementById('oc-view-'+v);
+	    if(el)el.style.display=(v===view?'block':'none');
+	  });
+	}
+	function filterOrthoConsult(status,btn){
+	  document.querySelectorAll('.oc-risk-tab').forEach(b=>b.classList.remove('active'));
+	  if(btn)btn.classList.add('active');
+	  document.querySelectorAll('#ocList .oc-item').forEach(item=>{
+	    item.style.display=(status==='all'||item.dataset.status===status)?'':'none';
+	  });
+	}
+	function selectOrthoConsult(el,type){
+	  document.querySelectorAll('#ocList .oc-item').forEach(i=>i.classList.remove('active'));
+	  el.classList.add('active');
+	  showOrthoConsultView('detail');
+	  const data={
+	    adult:{title:'張○婷｜成人矯正諮詢',status:'七天抵扣中',pkg:'齒顎矯正 / 顳顎關節完整評估套組',fee:'NT$5,000，可於 5/27 前抵扣',exp:'2026-11-16'},
+	    child:{title:'林○安｜兒童早期矯正諮詢',status:'即將到期',pkg:'兒童早期矯正評估套組',fee:'NT$2,000，已超過七天抵扣期',exp:'2026-11-25'},
+	    tmj:{title:'陳○芳｜TMJ 顳顎關節評估',status:'剩 14 天到期',pkg:'顳顎關節完整評估套組',fee:'NT$5,000，需主管確認是否延長抵扣',exp:'2026-12-04'},
+	    confirmed:{title:'王○明｜已確認治療',status:'已確認',pkg:'齒顎矯正完整評估套組',fee:'NT$5,000 已抵扣',exp:'已轉入治療計劃'}
+	  }[type]||{};
+	  const title=document.getElementById('ocDetailTitle');
+	  const status=document.getElementById('ocDetailStatus');
+	  const pkg=document.getElementById('ocPackageName');
+	  const fee=document.getElementById('ocEvalFee');
+	  const exp=document.getElementById('ocExpireDate');
+	  if(title)title.textContent=data.title;
+	  if(status){status.textContent=data.status;status.className='tag '+(type==='confirmed'?'tag-confirmed':type==='child'||type==='tmj'?'tag-unpaid':'tag-pending');}
+	  if(pkg)pkg.value=data.pkg;
+	  if(fee)fee.value=data.fee;
+	  if(exp)exp.value=data.exp;
+	}
+	function calcOrthoPackage(){
+	  const age=Number(document.getElementById('ocNewAge')?.value||0);
+	  const typeEl=document.getElementById('ocNewType');
+	  if(!typeEl)return;
+	  typeEl.value=age<=11?'CHILD｜兒童早期矯正評估套組｜NT$2,000':'ADULT｜完整評估套組｜NT$5,000';
+	}
+	function createOrthoConsult(sendLine){
+	  calcOrthoPackage();
+	  const name=document.getElementById('ocNewName')?.value||'新患者';
+	  const age=Number(document.getElementById('ocNewAge')?.value||0);
+	  const type=age<=11?'CHILD':'ADULT';
+	  const fee=age<=11?'NT$2,000':'NT$5,000';
+	  showOrthoConsultView('detail');
+	  showToast('已建立 '+name+' '+type+' 評估紀錄：'+fee+(sendLine?'，並加入 LINE 待發送':''),'success');
+	}
+	function confirmOrthoTreatment(){
+	  const active=document.querySelector('#ocList .oc-item.active');
+	  if(active){
+	    active.dataset.status='confirmed';
+	    active.classList.remove('red','amber','blue');
+	    active.classList.add('green');
+	    const meta=active.querySelector('.oc-meta');
+	    const money=active.querySelector('.oc-money');
+	    if(meta)meta.innerHTML='<span>今日確認</span><span>已抵扣</span><span>下次取資料</span>';
+	    if(money)money.textContent='評估費已抵扣總費用';
+	  }
+	  const status=document.getElementById('ocDetailStatus');
+	  if(status){status.textContent='已確認';status.className='tag tag-confirmed';}
+	  showOrthoConsultView('detail');
+	  showToast('已確認治療，後續效期提醒已停止','success');
+	}
+	function previewOrthoLine(code){
+	  document.querySelectorAll('.oc-script').forEach(s=>s.classList.remove('active'));
+	  const templates={
+	    consult_done_adult:'張○婷您好，今天完成的是「齒顎矯正 / 顳顎關節完整評估套組」。內容包含 X 光、口掃、口外照片與趙醫師完整評估。這份資料六個月內有效，七天內確認治療可全額抵扣評估費。',
+	    w1_adult:'張○婷您好，提醒您上次的完整評估費 NT$5,000，可在諮詢後七天內確認治療時直接抵扣。明天是最後一天，有任何問題我們都可以再協助說明。',
+	    w1_child:'林○安媽媽您好，提醒您兒童早期矯正評估費 NT$2,000，可在諮詢後七天內確認治療時直接抵扣。孩子口顎發育變化很快，若有疑問我們可以再協助說明。',
+	    m4:'您好，提醒您上次的口顎評估資料將在兩個月後到期。超過六個月後，因口顎狀況可能改變，需要重新評估。',
+	    confirmed:'已為您保留下次取進階資料與簽同意書的時段。上次評估費會全額抵扣在矯正總費用中。',
+	    encourage:'趙醫師這次回診特別表揚您的配合度很好。裝置佩戴與練習都有確實完成，治療有機會比預期更順利。'
+	  };
+	  const preview=document.getElementById('ocLinePreview');
+	  if(preview)preview.value=templates[code]||templates.consult_done_adult;
+	  showToast('已切換 LINE 模板預覽','info');
+	}
+
+	// ══ 新增病患 ══
 function openNewPatientModal(){openModal('modal-new-patient');}
 function submitNewPatient(){
   const name=document.getElementById('np-name')?.value.trim();
