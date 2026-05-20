@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O2WIN 治療計劃書</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f0f4f8;color:#1e293b;font-size:14px;min-height:100vh}
+
+/* ── 頂部工具列 ── */
+.top-bar{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 24px;display:flex;align-items:center;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.07);gap:12px}
+.tb-logo{font-size:14px;font-weight:900;color:#0ea5e9;margin-right:8px;white-space:nowrap}
+.tb-breadcrumb{font-size:13px;color:#64748b;display:flex;align-items:center;gap:6px}
+.tb-breadcrumb a{color:#0ea5e9;text-decoration:none;font-weight:600}.tb-breadcrumb a:hover{text-decoration:underline}
+.tb-sep{color:#cbd5e1}
+.tb-status-badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:5px}
+.badge-draft{background:#fef9c3;color:#a16207;border:1px solid #fde047}
+.badge-sent{background:#dcfce7;color:#15803d;border:1px solid #86efac}
+.badge-signed{background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd}
+.tb-actions{margin-left:auto;display:flex;gap:8px}
+.btn{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all .15s}
+.btn-primary{background:#0ea5e9;color:#fff}.btn-primary:hover{background:#0284c7}
+.btn-success{background:#22c55e;color:#fff}.btn-success:hover{background:#16a34a}
+.btn-line{background:#06C755;color:#fff}.btn-line:hover{background:#05a847}
+.btn-ghost{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}.btn-ghost:hover{background:#f1f5f9}
+.btn-danger{background:#fef2f2;color:#ef4444;border:1px solid #fca5a5}.btn-danger:hover{background:#fee2e2}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── 主體佈局 ── */
+.main-layout{display:grid;grid-template-columns:260px 1fr 220px;gap:20px;padding:20px 24px;max-width:1400px;margin:0 auto}
+
+/* ── 左側導覽 ── */
+.sidebar{display:flex;flex-direction:column;gap:10px;position:sticky;top:74px;height:fit-content}
+.sidebar-section{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden}
+.sidebar-title{font-size:11px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;border-bottom:1px solid #f1f5f9}
+.nav-item{padding:10px 14px;font-size:13px;color:#475569;cursor:pointer;display:flex;align-items:center;gap:8px;border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:#f8fafc;color:#1e293b}
+.nav-item.active{background:#f0f9ff;color:#0284c7;border-left-color:#0ea5e9;font-weight:700}
+.nav-item .nav-dot{width:6px;height:6px;border-radius:50%;background:#e2e8f0;flex-shrink:0}
+.nav-item.done .nav-dot{background:#22c55e}
+.nav-item.active .nav-dot{background:#0ea5e9}
+.nav-item.warn .nav-dot{background:#f59e0b}
+
+/* ── 中欄：計劃書本體 ── */
+.plan-body{display:flex;flex-direction:column;gap:16px}
+
+/* 病患資訊卡 */
+.pt-info-card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden}
+.pt-info-hdr{background:linear-gradient(135deg,#0ea5e9 0%,#0369a1 100%);padding:16px 20px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between}
+.pt-name-big{font-size:22px;font-weight:900;margin-bottom:4px}
+.pt-id-small{font-size:12px;opacity:.85}
+.pt-info-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 20px;padding:14px 20px;font-size:13px}
+.pt-info-item{display:flex;flex-direction:column;gap:2px}
+.pt-info-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.3px}
+.pt-info-val{font-size:13px;font-weight:700;color:#1e293b}
+.plan-id-box{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:8px 14px;text-align:right}
+.plan-id-label{font-size:10px;opacity:.8;letter-spacing:.5px}
+.plan-id-val{font-size:16px;font-weight:900;letter-spacing:1px}
+
+/* 各區塊卡片 */
+.plan-card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden}
+.plan-card-hdr{padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px}
+.plan-card-title{font-size:15px;font-weight:900;color:#1e293b;flex:1}
+.plan-card-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:12px}
+.badge-required{background:#fef2f2;color:#dc2626}
+.badge-optional{background:#f1f5f9;color:#64748b}
+.plan-card-body{padding:16px 20px}
+
+/* 診斷摘要 */
+.diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.diag-item{background:#f8fafc;border-radius:10px;padding:12px 14px;border:1px solid #e2e8f0}
+.diag-label{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px}
+.diag-val{font-size:13px;color:#1e293b;line-height:1.6}
+.diag-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:800}
+.tag-red{background:#fef2f2;color:#dc2626}
+.tag-amber{background:#fffbeb;color:#b45309}
+.tag-green{background:#f0fdf4;color:#15803d}
+.tag-blue{background:#dbeafe;color:#1d4ed8}
+
+/* 影像發現 */
+.xray-findings{background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e2e8f0;margin-bottom:12px}
+.xray-title{font-size:12px;font-weight:900;color:#64748b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.finding-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.finding-row:last-child{border-bottom:none}
+.finding-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.fi-abnormal{background:#fef2f2;color:#dc2626}
+.fi-borderline{background:#fffbeb;color:#b45309}
+.fi-normal{background:#f0fdf4;color:#15803d}
+.finding-text{flex:1;color:#1e293b;line-height:1.5}
+.finding-value{font-size:12px;font-weight:700;color:#64748b;white-space:nowrap}
+
+/* 治療方案選項 */
+.options-selector{display:flex;gap:10px;margin-bottom:16px}
+.option-tab{flex:1;padding:14px 16px;border-radius:12px;border:2px solid #e2e8f0;cursor:pointer;text-align:center;transition:all .2s;background:#fff;position:relative}
+.option-tab:hover{border-color:#0ea5e9;background:#f0f9ff}
+.option-tab.selected{border-color:#0ea5e9;background:#f0f9ff}
+.option-tab.recommended::before{content:'推薦';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#0ea5e9;color:#fff;font-size:10px;font-weight:900;padding:2px 10px;border-radius:0 0 8px 8px;letter-spacing:.5px}
+.opt-icon{font-size:24px;margin-bottom:6px}
+.opt-name{font-size:14px;font-weight:900;color:#1e293b;margin-bottom:4px}
+.opt-price{font-size:15px;font-weight:900;color:#0ea5e9}
+.opt-dur{font-size:11px;color:#64748b;margin-top:3px}
+
+/* 選中方案詳情 */
+.option-detail{background:#f0f9ff;border:2px solid #bae6fd;border-radius:12px;padding:16px}
+.detail-section{margin-bottom:14px}
+.detail-title{font-size:12px;font-weight:900;color:#0369a1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.phase-list{display:flex;flex-direction:column;gap:8px}
+.phase-item{display:flex;gap:12px;align-items:flex-start}
+.phase-num{width:24px;height:24px;border-radius:50%;background:#0ea5e9;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.phase-content{flex:1}
+.phase-name{font-size:13px;font-weight:800;color:#1e293b}
+.phase-dur{font-size:12px;color:#64748b}
+.phase-desc{font-size:12px;color:#475569;margin-top:3px;line-height:1.5}
+.cost-table{width:100%;border-collapse:collapse;font-size:13px}
+.cost-table td{padding:7px 0;border-bottom:1px solid #bae6fd}
+.cost-table tr:last-child td{border-bottom:none}
+.cost-total-row td{font-weight:900;font-size:15px;padding-top:10px;color:#0369a1}
+.note-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;line-height:1.6;margin-top:8px}
+
+/* 付款方式 */
+.payment-options{display:flex;flex-direction:column;gap:8px}
+.payment-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all .15s}
+.payment-opt.selected{border-color:#0ea5e9;background:#f0f9ff}
+.payment-opt:hover{border-color:#93c5fd}
+.payment-opt input[type=radio]{accent-color:#0ea5e9;width:16px;height:16px;flex-shrink:0}
+.payment-label{flex:1;font-size:13px;font-weight:700;color:#1e293b}
+.payment-desc{font-size:11px;color:#64748b;margin-top:1px}
+.payment-badge{font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px;background:#f0fdf4;color:#15803d}
+
+/* 自我保健計劃 */
+.care-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.care-item{background:#f8fafc;border-radius:10px;padding:12px 14px;border:1px solid #e2e8f0;display:flex;gap:10px}
+.care-icon{font-size:22px;flex-shrink:0}
+.care-title{font-size:13px;font-weight:800;color:#1e293b;margin-bottom:3px}
+.care-desc{font-size:12px;color:#475569;line-height:1.5}
+
+/* 醫囑與注意事項 */
+.instruction-list{display:flex;flex-direction:column;gap:8px}
+.instruction-item{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0}
+.inst-icon{font-size:16px;flex-shrink:0}
+.inst-text{font-size:13px;color:#1e293b;line-height:1.5}
+
+/* 病患確認區 */
+.confirm-section{background:#fff;border-radius:14px;border:2px solid #0ea5e9;overflow:hidden}
+.confirm-hdr{background:#0ea5e9;padding:14px 20px;color:#fff;display:flex;align-items:center;gap:8px}
+.confirm-title{font-size:15px;font-weight:900}
+.confirm-body{padding:20px}
+.confirm-checklist{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.confirm-check{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;cursor:pointer;transition:all .15s}
+.confirm-check.checked{background:#f0fdf4;border-color:#86efac}
+.confirm-check input{accent-color:#22c55e;width:16px;height:16px;flex-shrink:0;margin-top:2px;cursor:pointer}
+.confirm-check-text{font-size:13px;color:#1e293b;line-height:1.55}
+.sig-area{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.sig-box{border:2px dashed #e2e8f0;border-radius:10px;height:80px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;transition:all .15s}
+.sig-box:hover{border-color:#0ea5e9;background:#f0f9ff}
+.sig-box.signed{border:2px solid #22c55e;background:#f0fdf4}
+.sig-label{font-size:11px;color:#94a3b8;font-weight:700}
+.sig-name{font-size:18px;font-weight:900;color:#15803d;font-style:italic}
+.sig-date{font-size:11px;color:#64748b}
+
+/* 右側面板 */
+.right-panel{display:flex;flex-direction:column;gap:12px;position:sticky;top:74px;height:fit-content}
+.right-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden}
+.right-card-title{font-size:12px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;border-bottom:1px solid #f1f5f9}
+.right-card-body{padding:12px 14px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f8fafc;font-size:13px}
+.summary-row:last-child{border-bottom:none}
+.summary-label{color:#64748b}
+.summary-val{font-weight:700;color:#1e293b}
+.summary-total{border-top:2px solid #0ea5e9;margin-top:4px;padding-top:8px;display:flex;justify-content:space-between;font-size:15px;font-weight:900}
+.summary-total .val{color:#0ea5e9}
+.quick-btn{width:100%;padding:9px 12px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;transition:all .15s;margin-bottom:6px}
+.quick-btn:last-child{margin-bottom:0}
+.qb-primary{background:#0ea5e9;color:#fff}.qb-primary:hover{background:#0284c7}
+.qb-line{background:#06C755;color:#fff}.qb-line:hover{background:#05a847}
+.qb-ghost{background:#f8fafc;color:#1e293b;border:1px solid #e2e8f0}.qb-ghost:hover{background:#f1f5f9}
+.qb-warn{background:#fffbeb;color:#d97706;border:1px solid #fde68a}.qb-warn:hover{background:#fef3c7}
+.version-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px}
+.version-item:last-child{border-bottom:none}
+.version-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.version-active .version-dot{background:#0ea5e9}
+.version-old .version-dot{background:#e2e8f0}
+.version-meta{color:#94a3b8;font-size:11px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid #e2e8f0;color:#1e293b;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;box-shadow:0 8px 30px rgba(0,0,0,.12);max-width:300px}
+.toast.show{opacity:1}
+.toast.success{border-left:4px solid #22c55e}
+.toast.info{border-left:4px solid #0ea5e9}
+.toast.warn{border-left:4px solid #f59e0b}
+
+/* 模態框 */
+.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-ov.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.modal-hdr{padding:18px 22px 14px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:10px;position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-size:17px;font-weight:900;color:#1e293b;flex:1}
+.modal-close{width:32px;height:32px;border-radius:50%;border:none;background:#f1f5f9;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#64748b}
+.modal-close:hover{background:#e2e8f0}
+.modal-body{padding:20px 22px}
+.modal-footer{padding:14px 22px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.mf-row.full{grid-template-columns:1fr}
+.mf-field{display:flex;flex-direction:column;gap:4px}
+.mf-label{font-size:12px;font-weight:700;color:#64748b}
+.mf-input{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;background:#f8fafc;width:100%}
+.mf-input:focus{outline:none;border-color:#0ea5e9;background:#fff}
+
+/* 列印樣式 */
+@media print{
+  .top-bar,.sidebar,.right-panel,.modal-ov{display:none!important}
+  .main-layout{display:block;padding:0}
+  .plan-body{gap:12px}
+  .plan-card,.confirm-section,.pt-info-card{break-inside:avoid;box-shadow:none;border:1px solid #ddd}
+  body{background:#fff;font-size:12px}
+}
+
+/* 勾選框動畫 */
+.confirm-check{user-select:none}
+</style>
+</head>
+<body>
+
+<!-- ── 頂部工具列 ── -->
+<div class="top-bar">
+  <div class="tb-logo">⬡ O2WIN</div>
+  <div class="tb-breadcrumb">
+    <a href="Prototype_v4.0.html">今日戰情</a>
+    <span class="tb-sep">›</span>
+    <a href="Prototype_v4.0.html">病患管理</a>
+    <span class="tb-sep">›</span>
+    <span>方○霞 — 治療計劃書</span>
+  </div>
+  <span class="tb-status-badge badge-draft" id="planStatusBadge">📝 草稿</span>
+  <div class="tb-actions">
+    <button class="btn btn-ghost btn-sm" onclick="printPlan()">🖨 列印</button>
+    <button class="btn btn-line btn-sm" onclick="sendLine()">📤 LINE傳送</button>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('modal-edit-plan')">✏️ 編輯</button>
+    <button class="btn btn-primary btn-sm" onclick="savePlan()">💾 儲存</button>
+    <button class="btn btn-success btn-sm" onclick="finalizePlan()">✅ 確認送出</button>
+  </div>
+</div>
+
+<!-- ── 主體三欄 ── -->
+<div class="main-layout">
+
+<!-- ━━ 左側導覽 ━━ -->
+<div class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-title">📋 計劃書章節</div>
+    <div class="nav-item active done" onclick="scrollTo('sec-patient')"><span class="nav-dot"></span>一、病患資料</div>
+    <div class="nav-item done" onclick="scrollTo('sec-diagnosis')"><span class="nav-dot"></span>二、診斷摘要</div>
+    <div class="nav-item active" onclick="scrollTo('sec-options')"><span class="nav-dot"></span>三、治療方案選項</div>
+    <div class="nav-item done" onclick="scrollTo('sec-payment')"><span class="nav-dot"></span>四、費用與付款</div>
+    <div class="nav-item warn" onclick="scrollTo('sec-care')"><span class="nav-dot"></span>五、自我保健計劃</div>
+    <div class="nav-item" onclick="scrollTo('sec-instructions')"><span class="nav-dot"></span>六、醫囑事項</div>
+    <div class="nav-item" onclick="scrollTo('sec-confirm')"><span class="nav-dot"></span>七、病患確認簽署</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-title">🔗 相關文件</div>
+    <div class="nav-item" onclick="openFile('初診問卷')">📋 初診問卷</div>
+    <div class="nav-item" onclick="openFile('LINE預約紀錄')">📲 LINE預約紀錄</div>
+    <div class="nav-item" onclick="openFile('X光影像')">🔬 X光影像</div>
+    <div class="nav-item" onclick="openFile('比較照片')">📷 初診比較照</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-title">💬 醫師備注</div>
+    <div style="padding:12px 14px">
+      <textarea id="doctorNote" style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:12px;color:#475569;resize:none;background:#f8fafc;line-height:1.6" rows="5" placeholder="內部備注（不會出現在病患版本）…">左側TMJ 關節音明顯，建議先做咬合板穩定後，再評估是否需要矯正介入。病患工作繁忙，付款彈性處理。</textarea>
+      <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:6px;justify-content:center" onclick="showToast('備注已儲存','success')">儲存備注</button>
+    </div>
+  </div>
+</div>
+
+<!-- ━━ 中欄：計劃書本體 ━━ -->
+<div class="plan-body">
+
+  <!-- 一、病患資料 -->
+  <div id="sec-patient" class="pt-info-card">
+    <div class="pt-info-hdr">
+      <div>
+        <div class="pt-name-big">方○霞</div>
+        <div class="pt-id-small">O2W-20260601-001 ｜ 初診 ★ 2026-05-15</div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <span style="background:rgba(255,255,255,.25);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700">🔵 TMJ顳顎關節</span>
+          <span style="background:rgba(255,255,255,.25);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700">🟢 齒顎矯正（待評估）</span>
+        </div>
+      </div>
+      <div class="plan-id-box">
+        <div class="plan-id-label">計劃書編號</div>
+        <div class="plan-id-val">TP-26051501</div>
+        <div style="font-size:10px;opacity:.75;margin-top:4px">建立：2026-05-15</div>
+      </div>
+    </div>
+    <div class="pt-info-meta">
+      <div class="pt-info-item"><div class="pt-info-label">出生年月日</div><div class="pt-info-val">1988-09-22（37歲）</div></div>
+      <div class="pt-info-item"><div class="pt-info-label">聯絡電話</div><div class="pt-info-val">0966-123-456</div></div>
+      <div class="pt-info-item"><div class="pt-info-label">LINE 狀態</div><div class="pt-info-val" style="color:#15803d">✅ 已綁定</div></div>
+      <div class="pt-info-item"><div class="pt-info-label">來源</div><div class="pt-info-val">朋友推薦</div></div>
+      <div class="pt-info-item"><div class="pt-info-label">看診診間</div><div class="pt-info-val">診間 B（今日11:30）</div></div>
+      <div class="pt-info-item"><div class="pt-info-label">主治醫師</div><div class="pt-info-val">趙哲暘 醫師</div></div>
+    </div>
+  </div>
+
+  <!-- 二、診斷摘要 -->
+  <div id="sec-diagnosis" class="plan-card">
+    <div class="plan-card-hdr">
+      <div class="plan-card-title">🔬 二、診斷摘要</div>
+      <button class="btn btn-ghost btn-sm" onclick="openModal('modal-edit-diag')">✏️ 編輯</button>
+    </div>
+    <div class="plan-card-body">
+
+      <div class="diag-grid">
+        <div class="diag-item">
+          <div class="diag-label">主訴</div>
+          <div class="diag-val">右側顳顎關節<strong>彈響聲</strong>（持續約3年），早晨起床時<strong>下巴卡頓感</strong>，近期出現<strong>偶發性頭痛</strong></div>
+        </div>
+        <div class="diag-item">
+          <div class="diag-label">功能評估</div>
+          <div class="diag-val">最大開口 <strong>32 mm</strong> <span class="diag-tag tag-amber">偏低 ↓</span><br>開口軌跡 <strong>輕度偏斜（右）</strong><br>關節音 <strong>Type II 彈響</strong></div>
+        </div>
+        <div class="diag-item">
+          <div class="diag-label">吞嚥評估</div>
+          <div class="diag-val">
+            <span class="diag-tag tag-red">逆吞嚥殘留 ＋</span><br>
+            <span style="font-size:12px;color:#475569;margin-top:4px;display:block">舌推牙現象明顯，吞嚥時頸部代償收縮</span>
+          </div>
+        </div>
+        <div class="diag-item">
+          <div class="diag-label">咬合現況</div>
+          <div class="diag-val">安氏 <strong>II 類咬合</strong> <span class="diag-tag tag-amber">中度</span><br>覆蓋 6 mm，覆咬 4 mm<br>上顎輕度擁擠（2–3mm）</div>
+        </div>
+      </div>
+
+      <!-- X光發現 -->
+      <div class="xray-findings">
+        <div class="xray-title">📡 影像發現（Ceph + Panorama 2026-05-15）</div>
+        <div class="finding-row">
+          <div class="finding-icon fi-abnormal">!</div>
+          <div class="finding-text">右側 TMJ 關節盤 <strong>輕度前移位</strong>，關節間隙略窄（1.8mm）</div>
+          <div class="finding-value" style="color:#dc2626">異常</div>
+        </div>
+        <div class="finding-row">
+          <div class="finding-icon fi-borderline">~</div>
+          <div class="finding-text">SNA <strong>82°</strong>（正常），SNB <strong>77°</strong>（偏低），ANB 差 <strong>5°</strong></div>
+          <div class="finding-value" style="color:#b45309">臨界</div>
+        </div>
+        <div class="finding-row">
+          <div class="finding-icon fi-borderline">~</div>
+          <div class="finding-text">U1-SN <strong>106°</strong>（正常範圍低限），L1-MP <strong>94°</strong>（輕度前傾）</div>
+          <div class="finding-value" style="color:#b45309">臨界</div>
+        </div>
+        <div class="finding-row">
+          <div class="finding-icon fi-abnormal">!</div>
+          <div class="finding-text">PAS（後咽間隙）<strong>7.2mm</strong>，呼吸道偏窄</div>
+          <div class="finding-value" style="color:#dc2626">需關注</div>
+        </div>
+        <div class="finding-row">
+          <div class="finding-icon fi-normal">✓</div>
+          <div class="finding-text">骨質密度正常，無明顯骨頭吸收</div>
+          <div class="finding-value" style="color:#15803d">正常</div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        ⚕️ <strong>臨床判斷：</strong>TMJ 問題為首要處理事項，建議先以<strong>咬合板穩定關節位置</strong>，觀察3–6個月後，再決定是否進行齒顎矯正介入。矯正需求為中度，若病患希望改善外觀與咬合，可在TMJ穩定後評估。
+      </div>
+    </div>
+  </div>
+
+  <!-- 三、治療方案選項 -->
+  <div id="sec-options" class="plan-card">
+    <div class="plan-card-hdr">
+      <div class="plan-card-title">🦷 三、治療方案選項</div>
+      <span class="plan-card-badge badge-required">必選其一</span>
+    </div>
+    <div class="plan-card-body">
+      <div style="font-size:13px;color:#64748b;margin-bottom:14px">請與病患討論後選擇一個治療方向，病患需在計劃書上確認簽名。</div>
+
+      <!-- 方案選項卡 -->
+      <div class="options-selector">
+        <div class="option-tab recommended selected" id="opt-A" onclick="selectOption('A')">
+          <div class="opt-icon">🛡</div>
+          <div class="opt-name">方案 A<br><span style="font-size:11px;font-weight:600;color:#64748b">TMJ 優先保守</span></div>
+          <div class="opt-price">12,000</div>
+          <div class="opt-dur">3–6 個月</div>
+        </div>
+        <div class="option-tab" id="opt-B" onclick="selectOption('B')">
+          <div class="opt-icon">🦷</div>
+          <div class="opt-name">方案 B<br><span style="font-size:11px;font-weight:600;color:#64748b">TMJ ＋ 矯正</span></div>
+          <div class="opt-price" id="optBPrice">168,000</div>
+          <div class="opt-dur">24–30 個月</div>
+        </div>
+        <div class="option-tab" id="opt-C" onclick="selectOption('C')">
+          <div class="opt-icon">⏸</div>
+          <div class="opt-name">方案 C<br><span style="font-size:11px;font-weight:600;color:#64748b">暫時觀察</span></div>
+          <div class="opt-price">0</div>
+          <div class="opt-dur">回診追蹤</div>
+        </div>
+      </div>
+
+      <!-- 選中方案詳情 -->
+      <div class="option-detail" id="option-detail-A">
+        <div class="detail-section">
+          <div class="detail-title">治療階段</div>
+          <div class="phase-list">
+            <div class="phase-item">
+              <div class="phase-num">1</div>
+              <div class="phase-content">
+                <div class="phase-name">咬合板製作與調適期</div>
+                <div class="phase-dur">⏱ 第 1–2 個月</div>
+                <div class="phase-desc">取印模，製作上顎全口咬合板（Michigan-type splint），每晚配戴，首月回診2次調整</div>
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">2</div>
+              <div class="phase-content">
+                <div class="phase-name">吞嚥再訓練</div>
+                <div class="phase-dur">⏱ 持續進行</div>
+                <div class="phase-desc">配合口肌功能訓練，改善逆吞嚥：舌頂上顎正確吞嚥訓練、飯水分離習慣建立</div>
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">3</div>
+              <div class="phase-content">
+                <div class="phase-name">3個月復評</div>
+                <div class="phase-dur">⏱ 第 3–4 個月</div>
+                <div class="phase-desc">評估症狀改善情況（關節音、開口度、疼痛VAS），決定是否需要進行下一步治療</div>
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">4</div>
+              <div class="phase-content">
+                <div class="phase-name">6個月總評估</div>
+                <div class="phase-dur">⏱ 第 5–6 個月</div>
+                <div class="phase-desc">全面評估，確認是否進入方案B矯正介入，或繼續觀察。費用可抵扣至方案B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-title">費用明細</div>
+          <table class="cost-table">
+            <tr><td>咬合板製作（密蘇里型全口）</td><td style="text-align:right;font-weight:700">12,000</td></tr>
+            <tr><td>複診調整費（每次）</td><td style="text-align:right;color:#64748b">3,000 ×回診次</td></tr>
+            <tr><td>3個月復評費用</td><td style="text-align:right;color:#64748b">包含在複診內</td></tr>
+            <tr class="cost-total-row"><td>初期費用合計</td><td style="text-align:right">12,000</td></tr>
+          </table>
+        </div>
+        <div class="note-box">
+          ✅ <strong>方案優點：</strong>風險最低，費用最少。先確認TMJ是否可改善，再決定是否加入矯正。<br>
+          ⚠️ <strong>注意：</strong>若未改善吞嚥問題，TMJ症狀可能持續復發（流沙理論）。
+        </div>
+      </div>
+
+      <div class="option-detail" id="option-detail-B" style="display:none">
+        <div class="detail-section">
+          <div class="detail-title">治療階段</div>
+          <div class="phase-list">
+            <div class="phase-item">
+              <div class="phase-num">1</div>
+              <div class="phase-content">
+                <div class="phase-name">TMJ穩定期（同方案A）</div>
+                <div class="phase-dur">⏱ 第 1–6 個月</div>
+                <div class="phase-desc">咬合板治療，吞嚥再訓練，確認TMJ穩定後才進入矯正</div>
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">2</div>
+              <div class="phase-content">
+                <div class="phase-name">全口矯正（隱適美 Invisalign）</div>
+                <div class="phase-dur">⏱ 第 7–30 個月（約 18–24 個月）</div>
+                <div class="phase-desc">以隱適美清透牙套進行齒顎矯正，改善安氏II類咬合、覆蓋及覆咬，同步改善顏面對稱</div>
+              </div>
+            </div>
+            <div class="phase-item">
+              <div class="phase-num">3</div>
+              <div class="phase-content">
+                <div class="phase-name">保持器 + 長期維護</div>
+                <div class="phase-dur">⏱ 矯正結束後長期</div>
+                <div class="phase-desc">製作固定+活動保持器，每半年定期複診追蹤</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-title">費用明細</div>
+          <table class="cost-table">
+            <tr><td>咬合板製作</td><td style="text-align:right;font-weight:700">12,000</td></tr>
+            <tr><td>隱適美全口矯正（Comprehensive）</td><td style="text-align:right;font-weight:700">150,000</td></tr>
+            <tr><td>保持器（上下各一）</td><td style="text-align:right;font-weight:700">6,000</td></tr>
+            <tr><td>矯正期間複診調整</td><td style="text-align:right;color:#64748b">包含在套裝內</td></tr>
+            <tr class="cost-total-row"><td>總費用合計</td><td style="text-align:right">168,000</td></tr>
+          </table>
+        </div>
+        <div class="note-box">
+          ✅ <strong>方案優點：</strong>一次性解決TMJ與咬合問題，長期效果最佳，顏面改善最顯著。<br>
+          ⚠️ <strong>注意：</strong>療程較長（2–2.5年），費用較高，需高度配合（清潔、配戴時數）。
+        </div>
+      </div>
+
+      <div class="option-detail" id="option-detail-C" style="display:none">
+        <div style="padding:20px;text-align:center;color:#94a3b8">
+          <div style="font-size:32px;margin-bottom:10px">⏸</div>
+          <div style="font-size:14px;font-weight:700;color:#64748b;margin-bottom:8px">暫時觀察追蹤</div>
+          <div style="font-size:13px;line-height:1.6;max-width:320px;margin:0 auto">病患目前症狀尚可接受，選擇先觀察。建議<strong>3個月後</strong>回診評估，若症狀加重需立即回診。</div>
+          <div style="margin-top:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;text-align:left">
+            ⚠️ 醫師提醒：TMJ關節盤輕度前移位屬於可逆初期，若不處理可能進展至不可逆損傷。建議不要等待超過6個月。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 四、費用與付款方式 -->
+  <div id="sec-payment" class="plan-card">
+    <div class="plan-card-hdr">
+      <div class="plan-card-title">💳 四、費用與付款方式</div>
+      <span class="plan-card-badge badge-required">需選擇</span>
+    </div>
+    <div class="plan-card-body">
+      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:12px;color:#0369a1;font-weight:700">已選方案 A — TMJ 優先保守</div>
+          <div style="font-size:13px;color:#64748b;margin-top:2px">初期費用：咬合板製作</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:24px;font-weight:900;color:#0ea5e9" id="totalAmount">12,000</div>
+          <div style="font-size:11px;color:#64748b">元（自費）</div>
+        </div>
+      </div>
+
+      <div class="payment-options">
+        <label class="payment-opt selected" onclick="selectPayment(this)">
+          <input type="radio" name="payOpt" value="full" checked>
+          <div class="payment-label">
+            一次付清
+            <div class="payment-desc">當日結清，無額外費用</div>
+          </div>
+          <span class="payment-badge">最簡單</span>
+        </label>
+        <label class="payment-opt" onclick="selectPayment(this)">
+          <input type="radio" name="payOpt" value="split3">
+          <div class="payment-label">
+            分3期付款
+            <div class="payment-desc">製作日付 50%，1個月後 30%，3個月後 20%</div>
+          </div>
+        </label>
+        <label class="payment-opt" onclick="selectPayment(this)">
+          <input type="radio" name="payOpt" value="split6">
+          <div class="payment-label">
+            分6期付款（需事先申請）
+            <div class="payment-desc">頭期款 30%，每月等額付款。需填寫分期申請書。</div>
+          </div>
+        </label>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#64748b">
+        💡 付款方式說明：診所不收手續費。信用卡刷卡／現金／ATM轉帳均可接受。各分期期限依實際約定為主。
+      </div>
+    </div>
+  </div>
+
+  <!-- 五、自我保健計劃 -->
+  <div id="sec-care" class="plan-card">
+    <div class="plan-card-hdr">
+      <div class="plan-card-title">🌿 五、自我保健計劃</div>
+      <span class="plan-card-badge badge-required">重要</span>
+    </div>
+    <div class="plan-card-body">
+      <div style="font-size:13px;color:#64748b;margin-bottom:12px">以下保健計劃是治療成功的關鍵。醫師將依病況個人化調整，請確認已了解。</div>
+      <div class="care-grid">
+        <div class="care-item">
+          <div class="care-icon">🍽️</div>
+          <div>
+            <div class="care-title">飯水分離</div>
+            <div class="care-desc">進食時不喝水，讓唾液充分幫助消化，改善吞嚥習慣。飯後30分鐘再喝水。</div>
+          </div>
+        </div>
+        <div class="care-item">
+          <div class="care-icon">👅</div>
+          <div>
+            <div class="care-title">吞嚥再訓練</div>
+            <div class="care-desc">每天練習舌頂上顎吞嚥（約50下/次，每日3次）。避免舌推牙齒的吞嚥模式。</div>
+          </div>
+        </div>
+        <div class="care-item">
+          <div class="care-icon">😴</div>
+          <div>
+            <div class="care-title">夜間配戴咬合板</div>
+            <div class="care-desc">每晚入睡前配戴，早上起床後取下。配戴時不能進食，用清水沖洗保存。</div>
+          </div>
+        </div>
+        <div class="care-item">
+          <div class="care-icon">🥗</div>
+          <div>
+            <div class="care-title">飲食調整</div>
+            <div class="care-desc">治療初期避免硬食、韌性食物（魷魚、口香糖、生菜）。避免用單側咀嚼。</div>
+          </div>
+        </div>
+        <div class="care-item">
+          <div class="care-icon">🧘</div>
+          <div>
+            <div class="care-title">壓力管理</div>
+            <div class="care-desc">夜磨牙與壓力高度相關。建議減少睡前使用3C，嘗試放鬆技巧。</div>
+          </div>
+        </div>
+        <div class="care-item">
+          <div class="care-icon">📐</div>
+          <div>
+            <div class="care-title">姿勢改善</div>
+            <div class="care-desc">頭頸前傾姿勢會加重TMJ負擔。工作時維持良好坐姿，電腦螢幕提至眼睛高度。</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;font-size:12px;color:#0369a1">
+        📲 醫師將透過 LINE 傳送完整版「TMJ自我保健手冊」PDF，請存檔留存。如有疑問可直接 LINE 詢問。
+      </div>
+    </div>
+  </div>
+
+  <!-- 六、醫囑事項 -->
+  <div id="sec-instructions" class="plan-card">
+    <div class="plan-card-hdr">
+      <div class="plan-card-title">📋 六、醫囑與注意事項</div>
+    </div>
+    <div class="plan-card-body">
+      <div class="instruction-list">
+        <div class="instruction-item">
+          <div class="inst-icon">🔔</div>
+          <div class="inst-text">治療期間若出現<strong>明顯疼痛加劇、開口困難突然惡化、或關節有鎖口情況</strong>，請勿等待回診，立即聯繫診所。</div>
+        </div>
+        <div class="instruction-item">
+          <div class="inst-icon">💊</div>
+          <div class="inst-text">若需服用<strong>止痛藥</strong>（ibuprofen 或 acetaminophen），請依藥品指示服用，但長期依賴藥物是TMJ惡化的警訊，請告知醫師。</div>
+        </div>
+        <div class="instruction-item">
+          <div class="inst-icon">📅</div>
+          <div class="inst-text">咬合板取件後<strong>第1個月需回診2次</strong>（第2週及第4週），之後每1–2個月回診一次。回診請準時，每次約需30–45分鐘。</div>
+        </div>
+        <div class="instruction-item">
+          <div class="inst-icon">🚫</div>
+          <div class="inst-text"><strong>避免以下行為</strong>：用牙咬指甲 / 托腮 / 大口咬食物（如大型漢堡）/ 長時間張口（看牙科或美容）。這些動作會加重關節負擔。</div>
+        </div>
+        <div class="instruction-item">
+          <div class="inst-icon">🦷</div>
+          <div class="inst-text">治療期間若<strong>其他科別牙醫需要治療或拔牙</strong>，請事先告知本診所。特定步驟可能需要與TMJ治療協調進行。</div>
+        </div>
+        <div class="instruction-item">
+          <div class="inst-icon">📊</div>
+          <div class="inst-text">治療成效因人而異，大多數病患在<strong>2–3個月</strong>內可感受到顯著改善。部分症狀（如關節音）可能持續存在，但不代表治療無效。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 七、病患確認與簽署 -->
+  <div id="sec-confirm" class="confirm-section">
+    <div class="confirm-hdr">
+      <span style="font-size:20px">✍️</span>
+      <div class="confirm-title">七、病患知情同意與確認簽署</div>
+    </div>
+    <div class="confirm-body">
+      <div style="font-size:13px;color:#64748b;margin-bottom:16px;line-height:1.6">
+        請病患在確認理解以下各項說明後，逐一勾選並簽名。本文件將留存於診所，並透過 LINE 傳送電子版給病患保存。
+      </div>
+
+      <div class="confirm-checklist">
+        <label class="confirm-check" id="chk1" onclick="toggleCheck('chk1')">
+          <input type="checkbox" id="cb1">
+          <div class="confirm-check-text">我已理解自己的診斷結果，包含右側TMJ關節盤輕度前移位、逆吞嚥問題及安氏II類咬合的相關說明。</div>
+        </label>
+        <label class="confirm-check" id="chk2" onclick="toggleCheck('chk2')">
+          <input type="checkbox" id="cb2">
+          <div class="confirm-check-text">我已選擇並理解<strong id="selectedPlanText">方案 A（TMJ優先保守）</strong>的治療流程、預期療效及費用（<strong id="selectedAmtText">12,000</strong> 元）。</div>
+        </label>
+        <label class="confirm-check" id="chk3" onclick="toggleCheck('chk3')">
+          <input type="checkbox" id="cb3">
+          <div class="confirm-check-text">我了解治療成功有賴於自我保健計劃的配合（飯水分離、吞嚥訓練、夜間配戴咬合板等），我願意積極配合。</div>
+        </label>
+        <label class="confirm-check" id="chk4" onclick="toggleCheck('chk4')">
+          <input type="checkbox" id="cb4">
+          <div class="confirm-check-text">我理解治療效果因個人而異，醫師已告知可能的療程時間範圍及費用估計，以上為評估值而非保證。</div>
+        </label>
+        <label class="confirm-check" id="chk5" onclick="toggleCheck('chk5')">
+          <input type="checkbox" id="cb5">
+          <div class="confirm-check-text">我同意診所保存我的個人資料、影像及治療紀錄，並授權透過 LINE 傳送相關衛教及通知訊息。</div>
+        </label>
+      </div>
+
+      <div class="sig-area">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">病患簽名</div>
+          <div class="sig-box" id="patientSigBox" onclick="openSig('patient')">
+            <div class="sig-label" id="patientSigLabel">點擊此處簽名</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">主治醫師確認</div>
+          <div class="sig-box signed" id="doctorSigBox">
+            <div class="sig-name">趙哲暘</div>
+            <div class="sig-date">2026-05-15</div>
+            <div class="sig-label" style="color:#94a3b8;font-size:10px">醫師已確認</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-success" style="flex:1;justify-content:center;padding:12px" onclick="confirmAndSign()">✅ 全部確認 — 完成簽署</button>
+        <button class="btn btn-line" style="justify-content:center;padding:12px;flex:1" onclick="sendLine()">📤 LINE 傳送計劃書</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end plan-body -->
+
+<!-- ━━ 右側面板 ━━ -->
+<div class="right-panel">
+
+  <!-- 費用摘要 -->
+  <div class="right-card">
+    <div class="right-card-title">💰 費用摘要</div>
+    <div class="right-card-body">
+      <div class="summary-row"><span class="summary-label">已選方案</span><span class="summary-val" id="summaryPlan" style="color:#0ea5e9">方案 A</span></div>
+      <div class="summary-row"><span class="summary-label">初期費用</span><span class="summary-val" id="summaryAmt">12,000</span></div>
+      <div class="summary-row"><span class="summary-label">複診預估</span><span class="summary-val" style="color:#64748b">3,000×N次</span></div>
+      <div class="summary-row"><span class="summary-label">付款方式</span><span class="summary-val" id="summaryPay">一次付清</span></div>
+      <div class="summary-total">
+        <span>初期應收</span>
+        <span class="val" id="summaryTotal">12,000</span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px" onclick="goToBilling()">💳 前往結算</button>
+    </div>
+  </div>
+
+  <!-- 快速操作 -->
+  <div class="right-card">
+    <div class="right-card-title">⚡ 快速操作</div>
+    <div class="right-card-body">
+      <button class="quick-btn qb-ghost" onclick="printPlan()">🖨 列印計劃書</button>
+      <button class="quick-btn qb-line" onclick="sendLine()">📤 LINE 傳給病患</button>
+      <button class="quick-btn qb-ghost" onclick="showToast('已複製計劃書連結','success')">🔗 複製分享連結</button>
+      <button class="quick-btn qb-ghost" onclick="openModal('modal-edit-plan')">✏️ 修改計劃書</button>
+      <button class="quick-btn qb-warn" onclick="showToast('計劃書已作廢，請重新建立','warn')">🗑 作廢此計劃書</button>
+    </div>
+  </div>
+
+  <!-- 版本記錄 -->
+  <div class="right-card">
+    <div class="right-card-title">📜 版本記錄</div>
+    <div class="right-card-body">
+      <div class="version-item version-active">
+        <div class="version-dot"></div>
+        <div>
+          <div style="font-weight:700;font-size:13px">v1（目前）</div>
+          <div class="version-meta">草稿 ／ 2026-05-15 11:45</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下次回診 -->
+  <div class="right-card">
+    <div class="right-card-title">📅 安排下次回診</div>
+    <div class="right-card-body">
+      <div style="font-size:12px;color:#64748b;margin-bottom:8px">咬合板製作後2週回診調整</div>
+      <input type="date" style="width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-bottom:6px;background:#f8fafc" value="2026-05-29">
+      <input type="time" style="width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-bottom:8px;background:#f8fafc" value="10:00">
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showToast('已安排下次回診：2026-05-29 10:00','success')">📅 確認預約</button>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- end main-layout -->
+
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Modal：編輯計劃書 ── -->
+<div class="modal-ov" id="modal-edit-plan" onclick="if(event.target===this)closeModal('modal-edit-plan')">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-title">✏️ 編輯計劃書基本設定</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-plan')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mf-row full">
+        <div class="mf-field"><label class="mf-label">計劃書標題</label><input class="mf-input" value="方○霞 TMJ初診治療計劃書"></div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-field"><label class="mf-label">建立日期</label><input class="mf-input" type="date" value="2026-05-15"></div>
+        <div class="mf-field"><label class="mf-label">有效期限</label><input class="mf-input" type="date" value="2026-08-15"></div>
+      </div>
+      <div class="mf-row full">
+        <div class="mf-field"><label class="mf-label">診斷代碼（ICD-10）</label><input class="mf-input" placeholder="例：K07.6（TMJ顳顎關節障礙）" value="K07.6"></div>
+      </div>
+      <div class="mf-row full">
+        <div class="mf-field"><label class="mf-label">附加備注（顯示在計劃書末尾）</label>
+        <textarea class="mf-input" rows="3" style="resize:none">本計劃書依初診評估結果提出，後續治療細節可能依實際狀況調整。如有疑問請隨時聯繫診所。</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-plan')">取消</button>
+      <button class="btn btn-primary" onclick="saveEdit()">💾 儲存設定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal：編輯診斷 ── -->
+<div class="modal-ov" id="modal-edit-diag" onclick="if(event.target===this)closeModal('modal-edit-diag')">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-title">🔬 編輯診斷摘要</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-diag')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mf-row">
+        <div class="mf-field"><label class="mf-label">最大開口距離（mm）</label><input class="mf-input" type="number" value="32"></div>
+        <div class="mf-field"><label class="mf-label">開口軌跡</label>
+          <select class="mf-input"><option>正常</option><option selected>輕度偏斜（右）</option><option>輕度偏斜（左）</option><option>S型偏移</option></select>
+        </div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-field"><label class="mf-label">關節音類別</label>
+          <select class="mf-input"><option>無</option><option>Type I 輕微</option><option selected>Type II 彈響</option><option>Type III 嚴重</option></select>
+        </div>
+        <div class="mf-field"><label class="mf-label">ANB角度差</label><input class="mf-input" type="number" step="0.5" value="5"></div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-field"><label class="mf-label">PAS後咽間隙（mm）</label><input class="mf-input" type="number" step="0.1" value="7.2"></div>
+        <div class="mf-field"><label class="mf-label">逆吞嚥</label>
+          <select class="mf-input"><option>無</option><option selected>陽性（＋）</option><option>疑似（±）</option></select>
+        </div>
+      </div>
+      <div class="mf-row full">
+        <div class="mf-field"><label class="mf-label">醫師臨床判斷（自由文字）</label>
+          <textarea class="mf-input" rows="3" style="resize:none">TMJ 問題為首要處理事項，建議先以咬合板穩定關節位置，觀察3–6個月後再決定是否進行矯正介入。</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-diag')">取消</button>
+      <button class="btn btn-primary" onclick="saveDiag()">💾 更新診斷</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal：簽名 ── -->
+<div class="modal-ov" id="modal-sig" onclick="if(event.target===this)closeModal('modal-sig')">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-hdr">
+      <div class="modal-title">✍️ 病患簽名確認</div>
+      <button class="modal-close" onclick="closeModal('modal-sig')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:#64748b;margin-bottom:14px">請病患在下方輸入全名以確認簽署，此動作具有等同手寫簽名的法律效力。</div>
+      <div class="mf-row full">
+        <div class="mf-field">
+          <label class="mf-label">病患姓名（請完整輸入）</label>
+          <input class="mf-input" id="sigName" placeholder="請輸入本名" style="font-size:20px;font-weight:700;text-align:center">
+        </div>
+      </div>
+      <div style="font-size:12px;color:#94a3b8;text-align:center;margin-top:8px">簽署日期：2026-05-15 ｜ IP 位置已記錄</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-sig')">取消</button>
+      <button class="btn btn-success" onclick="submitSig()">✍️ 確認簽署</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ 基礎工具 ══
+function showToast(msg, type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+// ══ 方案選擇 ══
+const planData={
+  A:{name:'方案 A（TMJ優先保守）',amt:'12,000',total:'12,000',label:'方案 A'},
+  B:{name:'方案 B（TMJ＋矯正）',amt:'168,000',total:'168,000',label:'方案 B'},
+  C:{name:'方案 C（暫時觀察）',amt:'0',total:'0',label:'方案 C'}
+};
+
+function selectOption(key){
+  ['A','B','C'].forEach(k=>{
+    const el=document.getElementById('opt-'+k);
+    if(el) el.classList.toggle('selected',k===key);
+    const det=document.getElementById('option-detail-'+k);
+    if(det) det.style.display=k===key?'block':'none';
+  });
+  const p=planData[key];
+  // 更新費用摘要
+  document.getElementById('summaryPlan').textContent=p.label;
+  document.getElementById('summaryAmt').textContent=p.amt;
+  document.getElementById('summaryTotal').textContent=p.total;
+  document.getElementById('totalAmount').textContent=p.amt;
+  // 更新確認書文字
+  document.getElementById('selectedPlanText').textContent=p.name;
+  document.getElementById('selectedAmtText').textContent=p.amt;
+  showToast('已選擇'+p.name,'info');
+}
+
+// ══ 付款選擇 ══
+function selectPayment(el){
+  document.querySelectorAll('.payment-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const val=el.querySelector('input').value;
+  const labels={full:'一次付清',split3:'分3期',split6:'分6期'};
+  document.getElementById('summaryPay').textContent=labels[val]||val;
+}
+document.querySelectorAll('.payment-opt').forEach(o=>{
+  o.addEventListener('click',function(){selectPayment(this)});
+});
+
+// ══ 勾選確認 ══
+function toggleCheck(id){
+  const el=document.getElementById(id);
+  const cb=el.querySelector('input[type=checkbox]');
+  cb.checked=!cb.checked;
+  el.classList.toggle('checked',cb.checked);
+}
+
+// ══ 確認全部勾選 ══
+function confirmAndSign(){
+  const allChecked=[1,2,3,4,5].every(i=>{
+    const cb=document.getElementById('cb'+i);
+    return cb&&cb.checked;
+  });
+  if(!allChecked){
+    showToast('請先勾選所有確認項目','warn');
+    // 高亮未勾選項目
+    [1,2,3,4,5].forEach(i=>{
+      const el=document.getElementById('chk'+i);
+      const cb=document.getElementById('cb'+i);
+      if(el&&cb&&!cb.checked){
+        el.style.borderColor='#ef4444';
+        el.style.background='#fef2f2';
+        setTimeout(()=>{el.style.borderColor='';el.style.background='';},2000);
+      }
+    });
+    return;
+  }
+  openModal('modal-sig');
+}
+
+// ══ 簽名 ══
+let sigTarget='patient';
+function openSig(type){
+  sigTarget=type;
+  openModal('modal-sig');
+}
+function submitSig(){
+  const name=document.getElementById('sigName')?.value.trim();
+  if(!name){showToast('請輸入姓名','warn');return;}
+  closeModal('modal-sig');
+  const box=document.getElementById('patientSigBox');
+  if(box){
+    box.classList.add('signed');
+    box.innerHTML=`<div class="sig-name">${name}</div><div class="sig-date">2026-05-15 ${new Date().toTimeString().slice(0,5)}</div><div class="sig-label" style="color:#94a3b8;font-size:10px">已電子簽署</div>`;
+  }
+  // 更新狀態
+  document.getElementById('planStatusBadge').className='tb-status-badge badge-signed';
+  document.getElementById('planStatusBadge').textContent='✅ 已簽署';
+  showToast('✅ 病患「'+name+'」已完成簽署！計劃書確認成立。','success');
+  // 自動更新版本記錄
+  const verBody=document.querySelector('.right-card .right-card-body:last-of-type .version-item');
+}
+
+// ══ 儲存 / 送出 ══
+function savePlan(){showToast('計劃書已自動儲存','success')}
+function saveEdit(){closeModal('modal-edit-plan');showToast('設定已更新','success')}
+function saveDiag(){closeModal('modal-edit-diag');showToast('診斷摘要已更新','success')}
+function finalizePlan(){
+  document.getElementById('planStatusBadge').className='tb-status-badge badge-sent';
+  document.getElementById('planStatusBadge').textContent='📤 已送出';
+  showToast('計劃書已確認送出，LINE通知已發送給病患','success');
+}
+
+// ══ 傳送 LINE ══
+function sendLine(){showToast('治療計劃書 PDF 已透過 LINE 傳送給方○霞','success')}
+
+// ══ 列印 ══
+function printPlan(){
+  showToast('準備列印，請選擇印表機…','info');
+  setTimeout(()=>window.print(),500);
+}
+
+// ══ 前往收費 ══
+function goToBilling(){
+  showToast('跳轉到收費系統…（開啟 Prototype_v4.0.html 收費頁）','info');
+  setTimeout(()=>{window.open('Prototype_v4.0.html','_blank');},800);
+}
+
+// ══ 相關文件 ══
+function openFile(name){
+  if(name==='初診問卷') window.open('初診問卷_prototype.html','_blank');
+  else showToast('開啟：'+name,'info');
+}
+
+// ══ 導覽捲動 ══
+function scrollTo(id){
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  // 更新active
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  // 找對應的nav-item
+  const items=document.querySelectorAll('.nav-item');
+  const map={'sec-patient':0,'sec-diagnosis':1,'sec-options':2,'sec-payment':3,'sec-care':4,'sec-instructions':5,'sec-confirm':6};
+  const idx=map[id];
+  if(idx!==undefined&&items[idx]) items[idx].classList.add('active');
+}
+
+// ══ 初始化 ══
+document.addEventListener('DOMContentLoaded',()=>{
+  selectOption('A');
+});
+</script>
+</body>
+</html>

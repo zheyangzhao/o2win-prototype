@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>氧樂多牙醫 — 初診問卷</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+.page-header{background:#0ea5e9;color:#fff;padding:18px 20px 14px;text-align:center}
+.page-logo{font-size:18px;font-weight:900;margin-bottom:4px}
+.page-sub{font-size:13px;opacity:.85}
+.progress-bar-wrap{background:rgba(255,255,255,.2);height:6px;border-radius:3px;margin-top:12px;overflow:hidden}
+.progress-bar-fill{height:100%;background:#fff;border-radius:3px;transition:width .4s}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;opacity:.8;margin-top:4px}
+
+.form-container{max-width:600px;margin:0 auto;padding:16px}
+.section-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:14px;overflow:hidden}
+.section-hdr{padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px}
+.section-icon{font-size:20px}
+.section-title{font-size:15px;font-weight:900;color:#1e293b}
+.section-desc{font-size:12px;color:#64748b;margin-top:2px}
+.section-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:13px;font-weight:700;color:#475569}
+.field-label .req{color:#ef4444}
+.field-input{padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:15px;color:#1e293b;background:#f8fafc;width:100%}
+.field-input:focus{outline:none;border-color:#0ea5e9;background:#fff}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-hint{font-size:11px;color:#94a3b8;margin-top:2px}
+
+/* 選項 chip */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:13px;font-weight:700;cursor:pointer;color:#475569;transition:all .15s;user-select:none}
+.chip:hover{border-color:#0ea5e9;color:#0284c7}
+.chip.active{border-color:#0ea5e9;background:#f0f9ff;color:#0284c7}
+.chip.active.red{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+
+/* 評分尺 */
+.scale-wrap{display:flex;flex-direction:column;gap:6px}
+.scale-row{display:flex;align-items:center;gap:10px}
+.scale-label{font-size:12px;color:#64748b;width:80px;flex-shrink:0}
+.scale-dots{display:flex;gap:6px;flex:1}
+.scale-dot{width:36px;height:36px;border-radius:50%;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#94a3b8;transition:all .15s}
+.scale-dot:hover{border-color:#0ea5e9;background:#f0f9ff}
+.scale-dot.sel{border-color:#0ea5e9;background:#0ea5e9;color:#fff}
+.scale-dot.sel.warn{border-color:#f59e0b;background:#f59e0b}
+.scale-dot.sel.danger{border-color:#ef4444;background:#ef4444}
+
+/* 是否按鈕 */
+.yn-group{display:flex;gap:8px}
+.yn-btn{flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:8px;background:#f8fafc;font-size:14px;font-weight:700;cursor:pointer;color:#475569;transition:all .15s;text-align:center}
+.yn-btn:hover{border-color:#0ea5e9}
+.yn-btn.yes-active{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+.yn-btn.no-active{border-color:#22c55e;background:#f0fdf4;color:#16a34a}
+
+/* 提交按鈕 */
+.submit-area{max-width:600px;margin:0 auto;padding:0 16px 32px}
+.submit-btn{width:100%;padding:16px;background:#0ea5e9;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.5px}
+.submit-btn:hover{background:#0284c7}
+
+/* 完成畫面 */
+.done-screen{display:none;max-width:500px;margin:40px auto;padding:16px;text-align:center}
+.done-icon{font-size:64px;margin-bottom:16px}
+.done-title{font-size:22px;font-weight:900;color:#15803d;margin-bottom:8px}
+.done-msg{font-size:14px;color:#64748b;line-height:1.7;margin-bottom:24px}
+.done-info{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:16px;text-align:left;margin-bottom:20px}
+.done-info-row{display:flex;gap:8px;font-size:14px;margin-bottom:8px}
+.done-info-row:last-child{margin-bottom:0}
+.done-info-label{color:#64748b;width:80px;flex-shrink:0}
+.done-info-val{color:#1e293b;font-weight:700}
+
+/* 頁籤進度 */
+.steps{display:flex;gap:0;background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto}
+.step-tab{padding:10px 16px;font-size:12px;font-weight:700;color:#94a3b8;white-space:nowrap;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s}
+.step-tab.active{color:#0ea5e9;border-bottom-color:#0ea5e9}
+.step-tab.done{color:#22c55e}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-logo">⬡ 氧樂多牙醫診所</div>
+  <div class="page-sub">初診病患基本資料暨問卷調查</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:20%"></div>
+  </div>
+  <div class="progress-label">
+    <span id="progressText">第 1 部分，共 5 部分</span>
+    <span id="progressPct">20%</span>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step-tab active" onclick="goSection(0)">1. 基本資料</div>
+  <div class="step-tab" onclick="goSection(1)">2. 主訴</div>
+  <div class="step-tab" onclick="goSection(2)">3. 牙科病史</div>
+  <div class="step-tab" onclick="goSection(3)">4. TMJ篩檢</div>
+  <div class="step-tab" onclick="goSection(4)">5. 全身病史</div>
+</div>
+
+<div id="form-main">
+
+<!-- ── Section 0: 基本資料 ── -->
+<div class="form-container section-page" id="sec-0">
+  <div class="section-card">
+    <div class="section-hdr"><div class="section-icon">👤</div><div><div class="section-title">基本資料</div><div class="section-desc">請填寫您的個人資訊，資料僅用於診療用途</div></div></div>
+    <div class="section-body">
+      <div class="field-row">
+        <div class="field"><label class="field-label">姓名 <span class="req">*</span></label><input class="field-input" id="q-name" placeholder="請填寫真實姓名"></div>
+        <div class="field"><label class="field-label">出生年月日 <span class="req">*</span></label><input class="field-input" type="date" id="q-dob"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">性別</label>
+          <div class="chip-group">
+            <div class="chip" onclick="selectOne(this,'gender')">女</div>
+            <div class="chip" onclick="selectOne(this,'gender')">男</div>
+            <div class="chip" onclick="selectOne(this,'gender')">不公開</div>
+          </div>
+        </div>
+        <div class="field"><label class="field-label">聯絡電話 <span class="req">*</span></label><input class="field-input" type="tel" id="q-phone" placeholder="09xx-xxx-xxx"></div>
+      </div>
+      <div class="field"><label class="field-label">居住縣市</label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">台南市</div>
+          <div class="chip" onclick="toggleChip(this)">高雄市</div>
+          <div class="chip" onclick="toggleChip(this)">台中市</div>
+          <div class="chip" onclick="toggleChip(this)">台北市</div>
+          <div class="chip" onclick="toggleChip(this)">其他縣市</div>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">得知診所方式</label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">親友介紹</div>
+          <div class="chip" onclick="toggleChip(this)">Google搜尋</div>
+          <div class="chip" onclick="toggleChip(this)">社群媒體</div>
+          <div class="chip" onclick="toggleChip(this)">LINE</div>
+          <div class="chip" onclick="toggleChip(this)">其他醫師轉介</div>
+          <div class="chip" onclick="toggleChip(this)">其他</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="submit-btn" onclick="nextSection(0)" style="max-width:600px;width:calc(100% - 0px);display:block">下一步 →</button>
+</div>
+
+<!-- ── Section 1: 主訴 ── -->
+<div class="form-container section-page" id="sec-1" style="display:none">
+  <div class="section-card">
+    <div class="section-hdr"><div class="section-icon">🦷</div><div><div class="section-title">主要困擾</div><div class="section-desc">請勾選您今天來診所最主要想解決的問題</div></div></div>
+    <div class="section-body">
+      <div class="field"><label class="field-label">主要問題（可複選）</label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">下巴關節聲音（卡卡/彈響）</div>
+          <div class="chip" onclick="toggleChip(this)">下巴疼痛或酸痛</div>
+          <div class="chip" onclick="toggleChip(this)">張嘴困難</div>
+          <div class="chip" onclick="toggleChip(this)">頭痛（特別是太陽穴）</div>
+          <div class="chip" onclick="toggleChip(this)">牙齒不整齊</div>
+          <div class="chip" onclick="toggleChip(this)">暴牙／深咬／開咬</div>
+          <div class="chip" onclick="toggleChip(this)">小孩牙齒排列問題</div>
+          <div class="chip" onclick="toggleChip(this)">咬合不正（上下牙咬不好）</div>
+          <div class="chip" onclick="toggleChip(this)">夜間磨牙</div>
+          <div class="chip" onclick="toggleChip(this)">脖子肩膀痠痛</div>
+          <div class="chip" onclick="toggleChip(this)">其他</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">這個問題已持續多久？</label>
+        <div class="chip-group">
+          <div class="chip" onclick="selectOne(this,'duration')">剛開始（1個月內）</div>
+          <div class="chip" onclick="selectOne(this,'duration')">1–6個月</div>
+          <div class="chip" onclick="selectOne(this,'duration')">6個月–1年</div>
+          <div class="chip" onclick="selectOne(this,'duration')">1–3年</div>
+          <div class="chip" onclick="selectOne(this,'duration')">3年以上</div>
+          <div class="chip" onclick="selectOne(this,'duration')">從小就有</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">疼痛程度（若有疼痛）</label>
+        <div class="scale-wrap">
+          <div class="scale-row">
+            <div class="scale-label">目前</div>
+            <div class="scale-dots" id="pain-now">
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',1)">1</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',2)">2</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',3)">3</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',4)">4</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',5)">5</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',6)">6</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',7)">7</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',8)">8</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',9)">9</div>
+              <div class="scale-dot" onclick="selectScale(this,'pain-now',10)">10</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;padding:0 18px">
+            <span>完全不痛</span><span>劇烈疼痛</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">補充說明（自由填寫）</label>
+        <textarea class="field-input" rows="3" style="resize:none" placeholder="詳述症狀，例如：早上起床時特別嚴重、咬硬食物會痛…"></textarea>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:600px;margin:0 auto;display:flex;gap:10px;padding:0 0 14px">
+    <button class="submit-btn" onclick="goSection(0)" style="background:#f1f5f9;color:#475569;flex:1">← 上一步</button>
+    <button class="submit-btn" onclick="nextSection(1)" style="flex:2">下一步 →</button>
+  </div>
+</div>
+
+<!-- ── Section 2: 牙科病史 ── -->
+<div class="form-container section-page" id="sec-2" style="display:none">
+  <div class="section-card">
+    <div class="section-hdr"><div class="section-icon">📋</div><div><div class="section-title">牙科治療病史</div><div class="section-desc">了解您過去的牙科治療經歷</div></div></div>
+    <div class="section-body">
+      <div class="field">
+        <label class="field-label">過去是否接受過矯正治療？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'ortho-yn','yes')">⚠️ 有（拔牙矯正 / 一般矯正）</div>
+          <div class="yn-btn" onclick="ynClick(this,'ortho-yn','no')">✅ 沒有</div>
+        </div>
+        <div id="ortho-detail" style="display:none;margin-top:10px">
+          <textarea class="field-input" rows="2" style="resize:none" placeholder="幾歲做的？哪種矯正方式？有無復發？"></textarea>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">是否曾拔除智齒或其他牙齒？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'extract-yn','yes')">有</div>
+          <div class="yn-btn" onclick="ynClick(this,'extract-yn','no')">沒有</div>
+          <div class="yn-btn" onclick="ynClick(this,'extract-yn','unsure')">不確定</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">目前口內有哪些補牙/假牙？（可複選）</label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">樹脂填補（白色補牙）</div>
+          <div class="chip" onclick="toggleChip(this)">根管治療（神經治療）</div>
+          <div class="chip" onclick="toggleChip(this)">全瓷冠/牙套</div>
+          <div class="chip" onclick="toggleChip(this)">活動假牙</div>
+          <div class="chip" onclick="toggleChip(this)">植牙</div>
+          <div class="chip" onclick="toggleChip(this)">矯正保持器</div>
+          <div class="chip" onclick="toggleChip(this)">以上皆無</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">上次洗牙約在何時？</label>
+        <div class="chip-group">
+          <div class="chip" onclick="selectOne(this,'scaling')">6個月內</div>
+          <div class="chip" onclick="selectOne(this,'scaling')">6–12個月前</div>
+          <div class="chip" onclick="selectOne(this,'scaling')">1–2年前</div>
+          <div class="chip" onclick="selectOne(this,'scaling')">2年以上</div>
+          <div class="chip" onclick="selectOne(this,'scaling')">從未洗牙</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:600px;margin:0 auto;display:flex;gap:10px;padding:0 0 14px">
+    <button class="submit-btn" onclick="goSection(1)" style="background:#f1f5f9;color:#475569;flex:1">← 上一步</button>
+    <button class="submit-btn" onclick="nextSection(2)" style="flex:2">下一步 →</button>
+  </div>
+</div>
+
+<!-- ── Section 3: TMJ篩檢 ── -->
+<div class="form-container section-page" id="sec-3" style="display:none">
+  <div class="section-card">
+    <div class="section-hdr"><div class="section-icon">🔵</div><div><div class="section-title">顳顎關節（TMJ）篩檢</div><div class="section-desc">這些問題幫助醫師了解您的關節與咬合狀況</div></div></div>
+    <div class="section-body">
+
+      <div class="field">
+        <label class="field-label">張嘴時是否聽到關節聲音（卡卡/啪聲）？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'tmj-sound','yes')">有</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-sound','no')">沒有</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-sound','sometimes')">偶爾</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">張嘴有沒有困難（張不大或會卡住）？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'tmj-open','yes')">有</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-open','no')">沒有</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-open','sometimes')">偶爾</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">早上起床時，臉頰/太陽穴/脖子是否常感到酸痛？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'tmj-morning','yes')">是，幾乎每天</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-morning','sometimes')">偶爾有</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-morning','no')">不曾有</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">是否有夜間磨牙的習慣（本人或伴侶察覺）？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'tmj-grind','yes')">有磨牙</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-grind','clench')">只有咬緊（不磨）</div>
+          <div class="yn-btn" onclick="ynClick(this,'tmj-grind','no')">沒有</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">日常生活中是否有以下習慣？（可複選）</label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">托腮（手撐下巴）</div>
+          <div class="chip" onclick="toggleChip(this)">習慣嚼口香糖</div>
+          <div class="chip" onclick="toggleChip(this)">習慣咬指甲/筆</div>
+          <div class="chip" onclick="toggleChip(this)">單側咀嚼</div>
+          <div class="chip" onclick="toggleChip(this)">趴睡（臉朝側邊）</div>
+          <div class="chip" onclick="toggleChip(this)">長時間低頭用手機</div>
+          <div class="chip" onclick="toggleChip(this)">工作壓力大</div>
+          <div class="chip" onclick="toggleChip(this)">以上皆無</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">吞嚥時，您習慣用哪個部位用力？</label>
+        <div class="chip-group">
+          <div class="chip" onclick="selectOne(this,'swallow')">舌頭往上頂（舌頂上顎）</div>
+          <div class="chip" onclick="selectOne(this,'swallow')">舌頭往前推（推牙齒）</div>
+          <div class="chip" onclick="selectOne(this,'swallow')">脖子用力</div>
+          <div class="chip" onclick="selectOne(this,'swallow')">不確定</div>
+        </div>
+        <div class="field-hint">這個問題幫助醫師評估吞嚥功能，沒有標準答案</div>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:600px;margin:0 auto;display:flex;gap:10px;padding:0 0 14px">
+    <button class="submit-btn" onclick="goSection(2)" style="background:#f1f5f9;color:#475569;flex:1">← 上一步</button>
+    <button class="submit-btn" onclick="nextSection(3)" style="flex:2">下一步 →</button>
+  </div>
+</div>
+
+<!-- ── Section 4: 全身病史 ── -->
+<div class="form-container section-page" id="sec-4" style="display:none">
+  <div class="section-card">
+    <div class="section-hdr"><div class="section-icon">🏥</div><div><div class="section-title">全身健康狀況</div><div class="section-desc">部分全身疾病會影響牙科治療計劃</div></div></div>
+    <div class="section-body">
+      <div class="field">
+        <label class="field-label">目前是否有服用任何藥物？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'meds','yes')">有</div>
+          <div class="yn-btn" onclick="ynClick(this,'meds','no')">沒有</div>
+        </div>
+        <div id="meds-detail" style="display:none;margin-top:10px">
+          <input class="field-input" placeholder="藥物名稱（例：降血壓藥、抗凝血劑…）">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">是否有藥物或食物過敏？</label>
+        <div class="yn-group">
+          <div class="yn-btn" onclick="ynClick(this,'allergy','yes')">有</div>
+          <div class="yn-btn" onclick="ynClick(this,'allergy','no')">沒有</div>
+        </div>
+        <div id="allergy-detail" style="display:none;margin-top:10px">
+          <input class="field-input" placeholder="過敏原（例：青黴素/盤尼西林、花生…）">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">是否患有以下疾病？（可複選）</label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this)">高血壓</div>
+          <div class="chip" onclick="toggleChip(this)">糖尿病</div>
+          <div class="chip" onclick="toggleChip(this)">心臟病</div>
+          <div class="chip" onclick="toggleChip(this)">骨質疏鬆</div>
+          <div class="chip" onclick="toggleChip(this)">甲狀腺疾病</div>
+          <div class="chip" onclick="toggleChip(this)">自體免疫疾病</div>
+          <div class="chip" onclick="toggleChip(this)">睡眠呼吸中止症</div>
+          <div class="chip" onclick="toggleChip(this)">以上皆無</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">女性病患：目前是否懷孕或哺乳中？</label>
+        <div class="chip-group">
+          <div class="chip" onclick="selectOne(this,'pregnancy')">懷孕中</div>
+          <div class="chip" onclick="selectOne(this,'pregnancy')">哺乳中</div>
+          <div class="chip" onclick="selectOne(this,'pregnancy')">否</div>
+          <div class="chip" onclick="selectOne(this,'pregnancy')">不適用</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">其他補充或特別告知醫師的事項</label>
+        <textarea class="field-input" rows="3" style="resize:none" placeholder="例如：對X光有疑慮、有特殊需求、害怕特定治療…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:600px;margin:0 auto;padding:0 0 10px">
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:13px;color:#92400e;margin-bottom:14px">
+      📌 本問卷資料屬個人醫療隱私，僅供診療使用，不會作其他用途。填寫後醫師將於看診前閱讀，以提供更完善的初診諮詢。
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="submit-btn" onclick="goSection(3)" style="background:#f1f5f9;color:#475569;flex:1">← 上一步</button>
+      <button class="submit-btn" onclick="submitQuestionnaire()" style="flex:2;background:#22c55e">✅ 送出問卷</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /form-main -->
+
+<!-- 完成畫面 -->
+<div class="done-screen" id="done-screen">
+  <div class="done-icon">🎉</div>
+  <div class="done-title">問卷填寫完成！</div>
+  <div class="done-msg">感謝您花時間填寫初診問卷。<br>醫師將在看診前閱讀您的回答，以提供更精準的諮詢。</div>
+  <div class="done-info">
+    <div class="done-info-row"><span class="done-info-label">姓名</span><span class="done-info-val" id="done-name">—</span></div>
+    <div class="done-info-row"><span class="done-info-label">問卷編號</span><span class="done-info-val" id="done-code">—</span></div>
+    <div class="done-info-row"><span class="done-info-label">填寫時間</span><span class="done-info-val" id="done-time">—</span></div>
+    <div class="done-info-row" style="margin-top:8px;padding-top:8px;border-top:1px solid #bbf7d0"><span class="done-info-label" style="color:#15803d;font-weight:700">下一步</span><span class="done-info-val" style="color:#15803d">請回到候診區等候，護理人員將協助您進行後續流程</span></div>
+  </div>
+  <div style="background:#fff7ed;border:1px solid #fde68a;border-radius:10px;padding:12px;font-size:13px;color:#92400e;line-height:1.6;margin-bottom:12px">
+    🔔 <strong>診所助理端</strong>：問卷已完成，助理收到通知，院長將在看診前閱讀。
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <button onclick="window.open('治療計劃書_prototype.html','_blank')" style="padding:14px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+      📄 查看治療計劃書（院長端）→
+    </button>
+    <button onclick="window.open('Prototype_v4.0.html','_blank')" style="padding:12px;background:#0ea5e9;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
+      🖥 切換主控台
+    </button>
+    <button onclick="window.close()" style="padding:10px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">關閉視窗</button>
+  </div>
+</div>
+
+<script>
+let currentSection=0;
+const totalSections=5;
+
+function updateProgress(n){
+  const pct=Math.round((n+1)/totalSections*100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressText').textContent='第 '+(n+1)+' 部分，共 '+totalSections+' 部分';
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.querySelectorAll('.step-tab').forEach((t,i)=>{
+    t.classList.remove('active','done');
+    if(i<n) t.classList.add('done');
+    if(i===n) t.classList.add('active');
+  });
+}
+
+function goSection(n){
+  document.querySelectorAll('.section-page').forEach(p=>p.style.display='none');
+  document.getElementById('sec-'+n).style.display='block';
+  currentSection=n;
+  updateProgress(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nextSection(n){goSection(n+1);}
+
+function toggleChip(el){el.classList.toggle('active');}
+function selectOne(el,group){
+  document.querySelectorAll('[onclick*="selectOne(this,\''+group+'\'"]').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectScale(el,groupId,val){
+  const dots=document.querySelectorAll('#'+groupId+' .scale-dot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('sel','warn','danger');
+    if(i<val){
+      d.classList.add('sel');
+      if(val>=7)d.classList.add('danger');
+      else if(val>=4)d.classList.add('warn');
+    }
+  });
+}
+
+function ynClick(el,group,val){
+  document.querySelectorAll('[onclick*="ynClick(this,\''+group+'\'"]').forEach(b=>{
+    b.classList.remove('yes-active','no-active');
+  });
+  el.classList.add(val==='no'?'no-active':'yes-active');
+  // 展開補充欄位
+  const detail=document.getElementById(group.replace('-yn','')+'-detail');
+  if(detail)detail.style.display=val==='yes'?'block':'none';
+  const medsDetail=document.getElementById('meds-detail');
+  const allergyDetail=document.getElementById('allergy-detail');
+  if(group==='meds'&&medsDetail)medsDetail.style.display=val==='yes'?'block':'none';
+  if(group==='allergy'&&allergyDetail)allergyDetail.style.display=val==='yes'?'block':'none';
+  const orthoDetail=document.getElementById('ortho-detail');
+  if(group==='ortho-yn'&&orthoDetail)orthoDetail.style.display=val==='yes'?'block':'none';
+}
+
+function submitQuestionnaire(){
+  const name=document.getElementById('q-name')?.value.trim()||'（未填）';
+  const code='QNR-'+Date.now().toString().slice(-8);
+  const time=new Date().toLocaleString('zh-TW');
+
+  document.getElementById('done-name').textContent=name;
+  document.getElementById('done-code').textContent=code;
+  document.getElementById('done-time').textContent=time;
+
+  document.getElementById('form-main').style.display='none';
+  document.querySelector('.steps').style.display='none';
+  document.querySelector('.page-header').style.background='#22c55e';
+  document.getElementById('progressBar').style.width='100%';
+  document.getElementById('progressText').textContent='問卷已完成';
+  document.getElementById('progressPct').textContent='100%';
+  document.getElementById('done-screen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O2WIN × LINE 員工打卡系統 Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f8fafc;font-family:-apple-system,"Noto Sans TC",sans-serif;font-size:14px;color:#1e293b;min-height:100vh}
+
+/* ===== TOP BAR ===== */
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo{font-size:20px;font-weight:900;color:#0ea5e9;display:flex;align-items:center;gap:6px}
+.logo-hex{font-size:22px}
+.breadcrumb{font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:4px}
+.breadcrumb span{color:#64748b}
+.topbar-center{display:flex;align-items:center;gap:16px}
+.datetime-display{text-align:center}
+.date-txt{font-size:12px;color:#64748b;font-weight:600}
+.time-txt{font-size:20px;font-weight:900;color:#0ea5e9;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.topbar-right{}
+.preview-link{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#06C755;color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:background .15s}
+.preview-link:hover{background:#05a847}
+
+/* ===== MAIN LAYOUT ===== */
+.main-layout{display:flex;gap:20px;padding:20px 24px;min-height:calc(100vh - 56px - 250px)}
+
+/* ===== LEFT PANEL ===== */
+.left-panel{width:350px;flex-shrink:0;display:flex;flex-direction:column;gap:16px}
+
+/* Scenario Tabs */
+.tabs-header{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tab-btn{padding:10px 8px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:#64748b;display:flex;align-items:center;gap:5px;justify-content:center}
+.tab-btn:hover{border-color:#0ea5e9;color:#0ea5e9;background:#f0f9ff}
+.tab-btn.active{border-color:#0ea5e9;background:#0ea5e9;color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.3)}
+
+/* Scenario Description Card */
+.scenario-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.scenario-card-title{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.scenario-desc{font-size:13px;color:#475569;line-height:1.7}
+.scenario-desc strong{color:#0ea5e9}
+.scenario-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-top:8px;background:#f0f9ff;color:#0ea5e9;border:1px solid #bae6fd}
+
+/* Play button */
+.play-btn{width:100%;padding:11px;border-radius:10px;border:none;background:#0ea5e9;color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;box-shadow:0 2px 8px rgba(14,165,233,.25)}
+.play-btn:hover{background:#0284c7}
+.play-btn:disabled{background:#94a3b8;cursor:not-allowed;box-shadow:none}
+.play-icon{font-size:16px}
+
+/* Backend Notification Panel */
+.backend-panel{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.backend-panel-title{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.backend-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.backend-notifications{display:flex;flex-direction:column;gap:8px;min-height:60px}
+.backend-notif{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:12px;color:#15803d;opacity:0;transform:translateY(8px);transition:all .4s ease}
+.backend-notif.show{opacity:1;transform:translateY(0)}
+.backend-notif-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.backend-notif-text{line-height:1.5}
+.backend-empty{font-size:12px;color:#cbd5e1;text-align:center;padding:16px 0}
+
+/* Attendance Card */
+.attendance-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.attendance-card-title{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.attendance-list{display:flex;flex-direction:column;gap:6px}
+.attendance-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#f8fafc;border:1px solid #f1f5f9}
+.att-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.att-name{font-size:13px;font-weight:700;color:#334155;flex:1}
+.att-time{font-size:12px;color:#64748b}
+.att-badge{padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700}
+.att-ok{background:#dcfce7;color:#15803d}
+.att-warn{background:#fef9c3;color:#a16207}
+.att-off{background:#f1f5f9;color:#94a3b8}
+
+/* ===== RIGHT PANEL — PHONE ===== */
+.right-panel{flex:1;display:flex;justify-content:center;padding-top:4px}
+.phone-wrap{position:relative}
+.phone-frame{width:375px;height:760px;background:#fff;border-radius:40px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18);border:8px solid #1e293b;display:flex;flex-direction:column;position:relative}
+
+/* LINE header */
+.line-header{background:#06C755;padding:10px 16px 8px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.line-back{color:#fff;font-size:18px;padding:2px 4px;cursor:pointer}
+.line-avatar{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.line-info{flex:1}
+.line-name{color:#fff;font-size:15px;font-weight:800}
+.line-status{color:rgba(255,255,255,.8);font-size:11px}
+.line-menu-icon{color:#fff;font-size:18px;cursor:pointer}
+
+/* Chat area */
+.chat-area{flex:1;background:#dfeee2;overflow-y:auto;padding:10px 10px 8px;display:flex;flex-direction:column;gap:7px;scroll-behavior:smooth}
+.chat-date-divider{text-align:center;font-size:11px;color:#64748b;background:rgba(255,255,255,.6);display:inline-block;padding:2px 10px;border-radius:8px;align-self:center;margin:4px 0}
+
+/* Messages */
+.msg-row{display:flex;gap:7px;align-items:flex-end}
+.msg-row.user{flex-direction:row-reverse}
+.bot-av{width:30px;height:30px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;align-self:flex-start}
+.bubble{max-width:240px;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.65;word-break:break-word;position:relative}
+.bubble.bot{background:#fff;color:#1e293b;border-radius:14px 14px 14px 2px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.bubble.user{background:#a8d8a8;color:#1e293b;border-radius:14px 14px 2px 14px}
+.bubble.system{background:rgba(255,255,255,.7);color:#64748b;font-size:11px;text-align:center;border-radius:8px;align-self:center;padding:4px 12px;max-width:280px}
+.msg-time{font-size:10px;color:#94a3b8;flex-shrink:0}
+
+/* Map thumbnail */
+.map-thumb{width:180px;height:100px;background:linear-gradient(135deg,#bbf7d0 0%,#86efac 40%,#4ade80 70%,#22c55e 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #16a34a;position:relative;overflow:hidden}
+.map-pin{font-size:28px;position:relative;z-index:2}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.3) 1px,transparent 1px);background-size:20px 20px}
+
+/* Typing indicator */
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 14px;background:#fff;border-radius:14px 14px 14px 2px;box-shadow:0 1px 2px rgba(0,0,0,.08);width:fit-content}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:#94a3b8;animation:bounce-dot .9s ease-in-out infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* Processing spinner */
+.processing-msg{display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;padding:8px 12px;background:#fff;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.spinner{width:16px;height:16px;border:2px solid #e2e8f0;border-top-color:#06C755;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Rich menu */
+.rich-menu{flex-shrink:0;background:#06C755;padding:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.rm-btn{background:rgba(255,255,255,.92);border-radius:8px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;min-height:56px}
+.rm-btn:hover{background:#fff;border-color:rgba(255,255,255,.8);transform:scale(1.02)}
+.rm-btn.active-btn{background:#fff;border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+.rm-btn.disabled-btn{opacity:.6;cursor:not-allowed}
+.rm-icon{font-size:20px}
+.rm-label{font-size:10px;font-weight:700;color:#1a4731;text-align:center;line-height:1.3}
+
+/* Coming soon toast */
+.coming-soon-toast{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(30,41,59,.9);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+.coming-soon-toast.show{opacity:1}
+
+/* ===== BOTTOM SECTION ===== */
+.bottom-section{padding:20px 24px 32px;background:#f8fafc}
+.bottom-title{font-size:16px;font-weight:800;color:#1e293b;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.bottom-card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.bc-title{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.bc-icon{font-size:14px}
+
+/* Attendance table */
+.att-table{width:100%;border-collapse:collapse}
+.att-table th{font-size:11px;color:#94a3b8;font-weight:700;text-align:left;padding:4px 6px;border-bottom:1px solid #f1f5f9}
+.att-table td{font-size:12px;padding:7px 6px;border-bottom:1px solid #f8fafc;vertical-align:middle}
+.status-chip{padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;white-space:nowrap}
+.chip-ok{background:#dcfce7;color:#15803d}
+.chip-warn{background:#fef9c3;color:#a16207}
+.chip-off{background:#f1f5f9;color:#94a3b8}
+
+/* Salary preview */
+.salary-rows{display:flex;flex-direction:column;gap:8px}
+.salary-person{padding:10px;border-radius:8px;background:#f8fafc;border:1px solid #f1f5f9}
+.sp-name{font-size:13px;font-weight:700;color:#334155;margin-bottom:6px}
+.sp-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.sp-label{color:#94a3b8}
+.sp-val{color:#475569;font-weight:600}
+.sp-total{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#0ea5e9;margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0}
+
+/* Pending tasks */
+.pending-list{display:flex;flex-direction:column;gap:8px}
+.pending-item{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;border-radius:8px;background:#fefce8;border:1px solid #fde68a}
+.pending-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.pending-info{}
+.pending-name{font-size:13px;font-weight:700;color:#92400e}
+.pending-desc{font-size:11px;color:#b45309;margin-top:2px}
+.pending-actions{display:flex;gap:6px;margin-top:6px}
+.pact-btn{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:background .15s}
+.pact-approve{background:#22c55e;color:#fff}
+.pact-approve:hover{background:#16a34a}
+.pact-reject{background:#ef4444;color:#fff}
+.pact-reject:hover{background:#dc2626}
+.pact-view{background:#0ea5e9;color:#fff}
+.pact-view:hover{background:#0284c7}
+
+/* Animations */
+@keyframes fade-slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-anim{animation:fade-slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo"><span class="logo-hex">⬡</span> O2WIN</div>
+    <div class="breadcrumb">
+      <span>O2WIN</span>
+      <span style="color:#cbd5e1">›</span>
+      <span style="color:#0ea5e9;font-weight:700">LINE 員工系統</span>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <div class="datetime-display">
+      <div class="date-txt" id="date-display"></div>
+      <div class="time-txt" id="time-display"></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a href="LINE_預約流程_prototype.html" class="preview-link">
+      📲 預覽：病患預約流程
+    </a>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-layout">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <!-- Tabs -->
+    <div class="tabs-header">
+      <button class="tab-btn active" onclick="switchTab(0)" id="tab-0">📍 上班打卡</button>
+      <button class="tab-btn" onclick="switchTab(1)" id="tab-1">📍 下班打卡</button>
+      <button class="tab-btn" onclick="switchTab(2)" id="tab-2">📅 查本週班表</button>
+      <button class="tab-btn" onclick="switchTab(3)" id="tab-3">🏖️ 請假申請</button>
+    </div>
+
+    <!-- Scenario Description -->
+    <div class="scenario-card">
+      <div class="scenario-card-title">📋 情境說明</div>
+      <div class="scenario-desc" id="scenario-desc"></div>
+    </div>
+
+    <!-- Play Button -->
+    <button class="play-btn" id="play-btn" onclick="playScenario()">
+      <span class="play-icon">▶</span> 播放流程
+    </button>
+
+    <!-- Backend Notification Panel -->
+    <div class="backend-panel">
+      <div class="backend-panel-title">
+        <span class="backend-dot"></span>
+        O2WIN 後台即時通知
+      </div>
+      <div class="backend-notifications" id="backend-notifs">
+        <div class="backend-empty" id="backend-empty">等待情境執行…</div>
+      </div>
+    </div>
+
+    <!-- Today Attendance Card -->
+    <div class="attendance-card">
+      <div class="attendance-card-title">📊 今日出勤概況</div>
+      <div class="attendance-list">
+        <div class="attendance-item">
+          <div class="att-avatar" style="background:#0ea5e9">莉</div>
+          <div class="att-name">林小莉</div>
+          <div class="att-time">09:02</div>
+          <div class="att-badge att-ok">已到</div>
+        </div>
+        <div class="attendance-item">
+          <div class="att-avatar" style="background:#22c55e">美</div>
+          <div class="att-name">陳小美</div>
+          <div class="att-time">09:15</div>
+          <div class="att-badge att-ok">已到</div>
+        </div>
+        <div class="attendance-item">
+          <div class="att-avatar" style="background:#f59e0b">志</div>
+          <div class="att-name">王阿志</div>
+          <div class="att-time">⚠️ 未打卡</div>
+          <div class="att-badge att-warn">遲到15分</div>
+        </div>
+        <div class="attendance-item">
+          <div class="att-avatar" style="background:#94a3b8">芸</div>
+          <div class="att-name">張小芸</div>
+          <div class="att-time">特休</div>
+          <div class="att-badge att-off">休假</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — PHONE -->
+  <div class="right-panel">
+    <div class="phone-wrap">
+      <div class="phone-frame">
+        <!-- LINE Header -->
+        <div class="line-header">
+          <div class="line-back">‹</div>
+          <div class="line-avatar">🦷</div>
+          <div class="line-info">
+            <div class="line-name">氧樂多牙醫 員工系統</div>
+            <div class="line-status" id="line-date-sub"></div>
+          </div>
+          <div class="line-menu-icon">⋮</div>
+        </div>
+
+        <!-- Chat area -->
+        <div class="chat-area" id="chat-area">
+          <div class="chat-date-divider" id="chat-date-divider"></div>
+        </div>
+
+        <!-- Rich Menu -->
+        <div class="rich-menu">
+          <div class="rm-btn" id="rm-0" onclick="rmClick(0)">
+            <div class="rm-icon">📍</div>
+            <div class="rm-label">上班打卡</div>
+          </div>
+          <div class="rm-btn" id="rm-1" onclick="rmClick(1)">
+            <div class="rm-icon">📍</div>
+            <div class="rm-label">下班打卡</div>
+          </div>
+          <div class="rm-btn" id="rm-2" onclick="rmClick(2)">
+            <div class="rm-icon">📅</div>
+            <div class="rm-label">查班表</div>
+          </div>
+          <div class="rm-btn" id="rm-3" onclick="rmClick(3)">
+            <div class="rm-icon">🏖️</div>
+            <div class="rm-label">請假申請</div>
+          </div>
+          <div class="rm-btn disabled-btn" onclick="showComingSoon()">
+            <div class="rm-icon">🔄</div>
+            <div class="rm-label">換班申請</div>
+          </div>
+          <div class="rm-btn disabled-btn" onclick="showComingSoon()">
+            <div class="rm-icon">💰</div>
+            <div class="rm-label">薪資單</div>
+          </div>
+        </div>
+
+        <!-- Coming soon toast -->
+        <div class="coming-soon-toast" id="coming-soon-toast">功能即將推出 🚧</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM SECTION -->
+<div class="bottom-section">
+  <div class="bottom-title">🏥 員工管理快速查詢</div>
+  <div class="bottom-grid">
+
+    <!-- Card 1: Attendance Table -->
+    <div class="bottom-card">
+      <div class="bc-title"><span class="bc-icon">📋</span> 今日出勤狀態表</div>
+      <table class="att-table">
+        <thead>
+          <tr>
+            <th>員工</th>
+            <th>班別</th>
+            <th>打卡</th>
+            <th>狀態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>林小莉</strong></td>
+            <td style="color:#64748b">早班</td>
+            <td>09:02</td>
+            <td><span class="status-chip chip-ok">準時 ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>陳小美</strong></td>
+            <td style="color:#64748b">早班</td>
+            <td>09:15</td>
+            <td><span class="status-chip chip-ok">準時 ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>王阿志</strong></td>
+            <td style="color:#64748b">早班</td>
+            <td>09:55</td>
+            <td><span class="status-chip chip-warn">遲到35分 ⚠️</span></td>
+          </tr>
+          <tr>
+            <td><strong>張小芸</strong></td>
+            <td style="color:#64748b">—</td>
+            <td>—</td>
+            <td><span class="status-chip chip-off">特休 🏖️</span></td>
+          </tr>
+          <tr>
+            <td><strong>趙醫師</strong></td>
+            <td style="color:#64748b">全天</td>
+            <td>08:45</td>
+            <td><span class="status-chip chip-ok">準時 ✅</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Card 2: Salary Preview -->
+    <div class="bottom-card">
+      <div class="bc-title"><span class="bc-icon">💰</span> 本月薪資預覽</div>
+      <div class="salary-rows">
+        <div class="salary-person">
+          <div class="sp-name">林小莉</div>
+          <div class="sp-row"><span class="sp-label">月薪</span><span class="sp-val">35,000 元</span></div>
+          <div class="sp-row"><span class="sp-label">加班時數</span><span class="sp-val">4.5 hr</span></div>
+          <div class="sp-row"><span class="sp-label">加班費</span><span class="sp-val">+ 900 元</span></div>
+          <div class="sp-total"><span>預估實領</span><span>35,900 元</span></div>
+        </div>
+        <div class="salary-person">
+          <div class="sp-name">王阿志</div>
+          <div class="sp-row"><span class="sp-label">月薪</span><span class="sp-val">30,000 元</span></div>
+          <div class="sp-row"><span class="sp-label">遲到扣款</span><span class="sp-val">− 200 元</span></div>
+          <div class="sp-row"><span class="sp-label">加班時數</span><span class="sp-val">0 hr</span></div>
+          <div class="sp-total"><span>預估實領</span><span style="color:#ef4444">29,800 元</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Pending Tasks -->
+    <div class="bottom-card">
+      <div class="bc-title"><span class="bc-icon">⏳</span> 待處理事項</div>
+      <div class="pending-list">
+        <div class="pending-item" id="pending-1">
+          <div class="pending-icon">🔄</div>
+          <div class="pending-info">
+            <div class="pending-name">王阿志 補打卡申請</div>
+            <div class="pending-desc">2026-05-15 上班 09:20 → 申請更正為 08:58（忘記打卡）</div>
+            <div class="pending-actions">
+              <button class="pact-btn pact-approve" onclick="approvePending(1,'補打卡已核准')">核准</button>
+              <button class="pact-btn pact-reject" onclick="rejectPending(1)">拒絕</button>
+            </div>
+          </div>
+        </div>
+        <div class="pending-item" id="pending-2">
+          <div class="pending-icon">📅</div>
+          <div class="pending-info">
+            <div class="pending-name">王醫師 05/20 請假</div>
+            <div class="pending-desc">2026-05-20（週三）特休 1天，需確認班表調整</div>
+            <div class="pending-actions">
+              <button class="pact-btn pact-approve" onclick="approvePending(2,'請假已核准')">核准</button>
+              <button class="pact-btn pact-reject" onclick="rejectPending(2)">拒絕</button>
+            </div>
+          </div>
+        </div>
+        <div class="pending-item" id="pending-3">
+          <div class="pending-icon">💰</div>
+          <div class="pending-info">
+            <div class="pending-name">本月薪資單確認</div>
+            <div class="pending-desc">請於 05/20 前確認各員工薪資計算是否正確</div>
+            <div class="pending-actions">
+              <button class="pact-btn pact-view" onclick="viewPending(3)">查看明細</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== DATE / TIME =====
+const WEEKDAYS = ['日','一','二','三','四','五','六'];
+function updateClock(){
+  const now = new Date();
+  const y = now.getFullYear(), mo = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+  const h = String(now.getHours()).padStart(2,'0'), mi = String(now.getMinutes()).padStart(2,'0'), s = String(now.getSeconds()).padStart(2,'0');
+  const wd = WEEKDAYS[now.getDay()];
+  document.getElementById('date-display').textContent = `${y}/${mo}/${d}（週${wd}）`;
+  document.getElementById('time-display').textContent = `${h}:${mi}:${s}`;
+  document.getElementById('line-date-sub').textContent = `${y}/${mo}/${d} 週${wd}`;
+  document.getElementById('chat-date-divider').textContent = `${mo}月${d}日 週${wd}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ===== STATE =====
+let currentTab = 0;
+let isPlaying = false;
+let playTimers = [];
+
+const scenarioDescs = [
+  `<strong>GPS 定位驗證</strong>打卡<br><br>員工點選 Rich Menu「上班打卡」後，系統要求傳送 GPS 位置。<br><br>系統驗證距離是否在診所 <strong>200 公尺</strong>範圍內。<br><br>📍 診所座標：台南市東區（模擬）<div class="scenario-tag">📌 GPS 範圍 ≤ 200m</div>`,
+  `系統自動計算本日<strong>出勤時數</strong>，並於下班打卡成功後顯示。<br><br>月薪制員工不計時薪，但時數仍會記錄供薪資稽核。<br><br>員工傳送 GPS 位置後立即驗證並記錄。<div class="scenario-tag">⏱️ 自動計算時數</div>`,
+  `回傳員工<strong>本週班表</strong>，含出勤紀錄與剩餘特休天數。<br><br>班表由院長在 O2WIN 後台排定，每週五自動推播下週預告。<div class="scenario-tag">📅 週班表即時查詢</div>`,
+  `支援 <strong>8 種假別</strong>申請，員工透過 LINE 選擇假別與日期。<br><br>申請送出後自動通知院長，院長可直接在 LINE 點擊核准或拒絕。<br><br>結果即時回傳給員工。<div class="scenario-tag">📨 院長 LINE 審核</div>`
+];
+
+// ===== SCENARIO SCRIPTS =====
+const scenarios = [
+  // 0: Clock In
+  [
+    {type:'bot',  text:'早安！今日班別：早班 09:00–17:00\n請點選「上班打卡」並傳送您的位置 📍', delay:0, time:'08:55'},
+    {type:'sys',  text:'系統：正在等待位置資訊…', delay:800},
+    {type:'user', text:'📍 [傳送位置]', delay:1400, isMap:true, time:'09:02'},
+    {type:'process', text:'GPS 驗證中，請稍候…', delay:2600},
+    {type:'bot',  text:'✅ 上班打卡成功！\n\n👤 員工：林小莉\n⏰ 打卡時間：09:02\n📍 距離診所：38 公尺（範圍內 ✓）\n🕐 班別：早班 09:00–17:00\n📊 狀態：準時\n\n打卡紀錄已同步至 O2WIN 系統 🗂️', delay:4400, time:'09:02'},
+    {type:'backend', text:'✅ 小莉 上班打卡 09:02（準時）', delay:5000}
+  ],
+  // 1: Clock Out
+  [
+    {type:'user', text:'📍 [下班打卡 - 傳送位置]', delay:0, isMap:true, time:'17:05'},
+    {type:'process', text:'GPS 驗證中，請稍候…', delay:900},
+    {type:'bot',  text:'✅ 下班打卡成功！\n\n👤 員工：林小莉\n⏰ 下班時間：17:05\n📍 距離診所：22 公尺（範圍內 ✓）\n⏱️ 今日出勤：8 小時 3 分鐘\n💰 今日時薪計算：8h × 200 = 1,600元（月薪制不計）\n\n本日工作辛苦了！明天見 😊', delay:2200, time:'17:05'},
+    {type:'backend', text:'✅ 小莉 下班打卡 17:05（正常）', delay:3000}
+  ],
+  // 2: Schedule
+  [
+    {type:'user', text:'查班表', delay:0, time:'10:00'},
+    {type:'typing', delay:600},
+    {type:'bot',  text:'📅 林小莉 本週班表\n\n週一 05/11  早班 09:00–17:00  ✅已出勤\n週二 05/12  早班 09:00–17:00  ✅已出勤\n週三 05/13  休假 🏖️\n週四 05/14  早班 09:00–17:00  ✅已出勤\n週五 05/15  早班 09:00–17:00  ← 今日\n週六 05/16  休假\n週日 05/17  休假\n\n💡 如需換班請點選「換班申請」\n本週剩餘特休：10 天', delay:1600, time:'10:00'},
+    {type:'backend', text:'📋 林小莉 班表查詢已回傳', delay:2200}
+  ],
+  // 3: Leave Request
+  [
+    {type:'user', text:'請假申請', delay:0, time:'11:30'},
+    {type:'typing', delay:600},
+    {type:'bot',  text:'📝 請假申請\n\n請選擇假別：\n1️⃣ 特休假（全薪，剩 10 天）\n2️⃣ 病假-全薪（剩 30 天）\n3️⃣ 事假（無薪）\n4️⃣ 婚假（全薪，8天）\n5️⃣ 其他…\n\n請回覆數字選擇假別', delay:1400, time:'11:30'},
+    {type:'user', text:'1', delay:2600, time:'11:31'},
+    {type:'typing', delay:3300},
+    {type:'bot',  text:'✅ 已選擇：特休假\n\n請輸入請假日期：\n例：2026-05-20 或 2026-05-20 至 2026-05-22', delay:4000, time:'11:31'},
+    {type:'user', text:'2026-05-20', delay:5200, time:'11:31'},
+    {type:'typing', delay:5900},
+    {type:'bot',  text:'📋 請假申請確認\n\n👤 員工：林小莉\n📌 假別：特休假（全薪）\n📅 日期：2026-05-20（週三）\n⏰ 時長：1天\n\n申請已送出，等待院長審核 ⏳\n審核結果將透過 LINE 通知您', delay:6800, time:'11:32'},
+    {type:'sys',  text:'── 系統通知：院長已收到請假申請 ──', delay:7800},
+    {type:'bot',  text:'📨 院長，林小莉 申請 2026-05-20 特休 1天\n\n請點選審核：\n✅ [核准]   ❌ [拒絕]', delay:8200, time:'11:32', isApproval:true},
+    {type:'backend', text:'📨 請假申請已通知院長審核', delay:8800}
+  ]
+];
+
+// ===== INIT =====
+function init(){
+  switchTab(0);
+}
+
+// ===== TAB SWITCH =====
+function switchTab(idx){
+  currentTab = idx;
+  for(let i=0;i<4;i++){
+    document.getElementById(`tab-${i}`).classList.toggle('active', i===idx);
+    document.getElementById(`rm-${i}`).classList.toggle('active-btn', i===idx);
+  }
+  document.getElementById('scenario-desc').innerHTML = scenarioDescs[idx];
+  // Reset chat
+  clearTimers();
+  resetChat();
+  resetBackend();
+  isPlaying = false;
+  document.getElementById('play-btn').disabled = false;
+  document.getElementById('play-btn').innerHTML = '<span class="play-icon">▶</span> 播放流程';
+}
+
+// ===== RICH MENU CLICK =====
+function rmClick(idx){
+  switchTab(idx);
+  setTimeout(()=>playScenario(), 200);
+}
+
+// ===== COMING SOON =====
+function showComingSoon(){
+  const t = document.getElementById('coming-soon-toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ===== RESET =====
+function resetChat(){
+  const area = document.getElementById('chat-area');
+  const divider = document.getElementById('chat-date-divider').outerHTML;
+  area.innerHTML = '';
+  // re-add divider
+  const d = document.createElement('div');
+  d.className = 'chat-date-divider';
+  d.id = 'chat-date-divider';
+  updateClock(); // refresh divider text
+  area.appendChild(d);
+}
+
+function resetBackend(){
+  document.getElementById('backend-empty').style.display = '';
+  const notifs = document.querySelectorAll('.backend-notif');
+  notifs.forEach(n=>n.remove());
+}
+
+function clearTimers(){
+  playTimers.forEach(t=>clearTimeout(t));
+  playTimers = [];
+}
+
+// ===== PLAY SCENARIO =====
+function playScenario(){
+  if(isPlaying) return;
+  isPlaying = true;
+  clearTimers();
+  resetChat();
+  resetBackend();
+  const btn = document.getElementById('play-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="play-icon">⏸</span> 播放中…';
+
+  const script = scenarios[currentTab];
+  let processingEl = null;
+
+  script.forEach((item)=>{
+    const t = setTimeout(()=>{
+      const area = document.getElementById('chat-area');
+
+      // Remove typing/processing if present
+      const old = area.querySelector('.typing-row, .processing-row');
+      if(old) old.remove();
+      if(processingEl){ try{processingEl.remove()}catch(e){} processingEl=null; }
+
+      if(item.type === 'typing'){
+        const row = document.createElement('div');
+        row.className = 'msg-row typing-row';
+        row.innerHTML = `<div class="bot-av">🤖</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+        area.appendChild(row);
+        area.scrollTop = area.scrollHeight;
+        return;
+      }
+
+      if(item.type === 'process'){
+        const row = document.createElement('div');
+        row.className = 'msg-row processing-row';
+        row.innerHTML = `<div class="bot-av">🤖</div><div class="processing-msg"><div class="spinner"></div>${item.text}</div>`;
+        area.appendChild(row);
+        processingEl = row;
+        area.scrollTop = area.scrollHeight;
+        return;
+      }
+
+      if(item.type === 'backend'){
+        document.getElementById('backend-empty').style.display = 'none';
+        const n = document.createElement('div');
+        n.className = 'backend-notif';
+        n.innerHTML = `<div class="backend-notif-icon">🔔</div><div class="backend-notif-text">${item.text}</div>`;
+        document.getElementById('backend-notifs').appendChild(n);
+        requestAnimationFrame(()=>n.classList.add('show'));
+        return;
+      }
+
+      if(item.type === 'sys'){
+        const el = document.createElement('div');
+        el.className = 'bubble system msg-anim';
+        el.textContent = item.text;
+        area.appendChild(el);
+        area.scrollTop = area.scrollHeight;
+        return;
+      }
+
+      // Regular message (bot or user)
+      const row = document.createElement('div');
+      row.className = `msg-row msg-anim ${item.type === 'user' ? 'user' : ''}`;
+
+      let inner = '';
+      const timeStr = item.time || '';
+      const timeEl = timeStr ? `<div class="msg-time">${timeStr}</div>` : '';
+
+      if(item.type === 'bot'){
+        let content = '';
+        if(item.isApproval){
+          content = `<div class="bubble bot">${escHtml(item.text)}</div>`;
+        } else {
+          content = `<div class="bubble bot" style="white-space:pre-wrap">${escHtml(item.text)}</div>`;
+        }
+        inner = `<div class="bot-av">🤖</div>${content}${timeEl}`;
+      } else if(item.type === 'user'){
+        if(item.isMap){
+          const mapHtml = `<div class="map-thumb"><div class="map-grid"></div><div class="map-pin">📍</div></div>`;
+          inner = `${timeEl}<div class="bubble user">${mapHtml}<div style="font-size:11px;color:#475569;margin-top:6px">位置已傳送</div></div>`;
+        } else {
+          inner = `${timeEl}<div class="bubble user">${escHtml(item.text)}</div>`;
+        }
+      }
+
+      row.innerHTML = inner;
+      area.appendChild(row);
+      area.scrollTop = area.scrollHeight;
+
+    }, item.delay * 1.0);
+    playTimers.push(t);
+  });
+
+  // Re-enable button after last item
+  const lastDelay = script[script.length-1].delay + 1200;
+  const finalT = setTimeout(()=>{
+    isPlaying = false;
+    btn.disabled = false;
+    btn.innerHTML = '<span class="play-icon">▶</span> 重新播放';
+  }, lastDelay);
+  playTimers.push(finalT);
+}
+
+function escHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== PENDING ACTIONS =====
+function approvePending(id, msg){
+  const el = document.getElementById(`pending-${id}`);
+  el.style.background = '#dcfce7';
+  el.style.borderColor = '#86efac';
+  el.querySelector('.pending-name').style.color = '#15803d';
+  el.querySelector('.pending-desc').textContent = '✅ ' + msg;
+  el.querySelector('.pending-actions').innerHTML = '<span style="font-size:12px;color:#15803d;font-weight:700">✅ 已核准</span>';
+}
+function rejectPending(id){
+  const el = document.getElementById(`pending-${id}`);
+  el.style.background = '#fee2e2';
+  el.style.borderColor = '#fca5a5';
+  el.querySelector('.pending-name').style.color = '#dc2626';
+  el.querySelector('.pending-desc').textContent = '❌ 已拒絕申請';
+  el.querySelector('.pending-actions').innerHTML = '<span style="font-size:12px;color:#dc2626;font-weight:700">❌ 已拒絕</span>';
+}
+function viewPending(id){
+  const el = document.getElementById(`pending-${id}`);
+  el.querySelector('.pending-desc').textContent = '📊 已開啟薪資明細頁面（示意）';
+  el.querySelector('.pending-actions').innerHTML = '<span style="font-size:12px;color:#0ea5e9;font-weight:700">📂 查看中</span>';
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>

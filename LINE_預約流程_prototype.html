@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O2WIN × LINE 病患預約流程 Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a2e;font-family:-apple-system,"Noto Sans TC",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;gap:32px;flex-wrap:wrap}
+
+/* 左側說明欄 */
+.info-panel{color:#fff;width:300px;flex-shrink:0}
+.info-logo{font-size:22px;font-weight:900;color:#06C755;margin-bottom:8px}
+.info-sub{font-size:13px;color:#94a3b8;margin-bottom:24px;line-height:1.6}
+.step-list{display:flex;flex-direction:column;gap:12px}
+.step-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s}
+.step-item:hover,.step-item.active{background:rgba(6,199,85,.1);border-color:#06C755}
+.step-num{width:26px;height:26px;border-radius:50%;background:#06C755;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-item.done .step-num{background:#22c55e}
+.step-text{font-size:13px;color:#e2e8f0;line-height:1.5}
+.step-text strong{color:#06C755}
+.restart-btn{margin-top:20px;width:100%;padding:10px;background:#06C755;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.restart-btn:hover{background:#05a847}
+.note-box{margin-top:16px;background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.3);border-radius:8px;padding:12px;font-size:12px;color:#7dd3fc;line-height:1.6}
+
+/* 手機外框 */
+.phone-frame{width:375px;height:750px;background:#fff;border-radius:40px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);border:8px solid #1e1e2e;position:relative;flex-shrink:0}
+.phone-status{background:#06C755;padding:10px 20px 8px;display:flex;align-items:center;gap:8px}
+.phone-back{color:#fff;font-size:18px;cursor:pointer;padding:2px 6px}
+.phone-avatar{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.phone-info{flex:1}
+.phone-name{color:#fff;font-size:15px;font-weight:700}
+.phone-status-txt{color:rgba(255,255,255,.8);font-size:11px}
+.phone-menu{color:#fff;font-size:18px;cursor:pointer}
+
+/* 聊天背景 */
+.chat-bg{background:#efeae2;flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+
+/* 訊息泡泡 */
+.msg-row{display:flex;gap:8px;align-items:flex-end}
+.msg-row.user{flex-direction:row-reverse}
+.bot-avatar{width:32px;height:32px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;align-self:flex-start}
+.bubble{max-width:260px;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.6;position:relative;word-break:break-word}
+.bubble.bot{background:#fff;color:#1e293b;border-radius:14px 14px 14px 2px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.bubble.user{background:#a8d8a8;color:#1e293b;border-radius:14px 14px 2px 14px}
+.msg-time{font-size:10px;color:#94a3b8;align-self:flex-end;flex-shrink:0}
+
+/* 快速回覆按鈕組 */
+.quick-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:flex-start}
+.qbtn{padding:7px 14px;border-radius:20px;border:1.5px solid #06C755;background:#fff;color:#06C755;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.qbtn:hover{background:#06C755;color:#fff}
+.qbtn:disabled{border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;background:#f9f9f9}
+.qbtn.selected{background:#06C755;color:#fff;border-color:#06C755}
+
+/* 日曆選擇器 */
+.cal-picker{background:#fff;border-radius:12px;padding:12px;max-width:260px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.cal-picker-title{font-size:13px;font-weight:800;color:#1e293b;margin-bottom:10px;text-align:center}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-hdr{text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:2px}
+.cal-day{text-align:center;padding:7px 4px;border-radius:8px;font-size:13px;cursor:pointer;border:1.5px solid transparent;font-weight:600}
+.cal-day.avail{color:#1e293b;border-color:#e2e8f0;background:#f8fafc}
+.cal-day.avail:hover{border-color:#06C755;background:#f0fdf4;color:#15803d}
+.cal-day.full{color:#dc2626;border-color:#fca5a5;background:#fef2f2;text-decoration:line-through;cursor:not-allowed;font-size:11px}
+.cal-day.off{color:#d1d5db;cursor:not-allowed;font-size:11px}
+.cal-day.today{background:#06C755;color:#fff;border-color:#06C755}
+.cal-day.selected{background:#15803d;color:#fff;border-color:#15803d}
+
+/* 時段選擇 */
+.time-picker{display:flex;flex-wrap:wrap;gap:6px;max-width:260px}
+.time-slot{padding:8px 14px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:13px;font-weight:700;cursor:pointer;color:#1e293b;transition:all .15s}
+.time-slot.avail:hover{border-color:#06C755;background:#f0fdf4;color:#15803d}
+.time-slot.full{color:#dc2626;border-color:#fca5a5;background:#fef2f2;text-decoration:line-through;cursor:not-allowed;font-size:11px}
+.time-slot.selected{background:#06C755;color:#fff;border-color:#06C755}
+
+/* 確認卡 */
+.confirm-card{background:#fff;border-radius:12px;padding:14px;max-width:260px;border:2px solid #06C755}
+.confirm-card-title{font-size:13px;font-weight:900;color:#15803d;margin-bottom:10px}
+.confirm-row{display:flex;gap:8px;margin-bottom:7px;font-size:13px}
+.confirm-label{color:#64748b;width:60px;flex-shrink:0}
+.confirm-value{color:#1e293b;font-weight:700;flex:1}
+.confirm-actions{display:flex;gap:8px;margin-top:12px}
+.confirm-btn-yes{flex:1;padding:9px;background:#06C755;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer}
+.confirm-btn-no{flex:1;padding:9px;background:#f8fafc;color:#64748b;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* 表單輸入 */
+.form-card{background:#fff;border-radius:12px;padding:14px;max-width:260px}
+.form-field{margin-bottom:10px}
+.form-label{font-size:12px;font-weight:700;color:#64748b;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1e293b;background:#f8fafc}
+.form-input:focus{outline:none;border-color:#06C755}
+.form-hint{font-size:11px;color:#94a3b8;margin-top:3px}
+.form-submit{width:100%;padding:10px;background:#06C755;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;margin-top:4px}
+.form-submit:hover{background:#05a847}
+
+/* 成功卡 */
+.success-card{background:#fff;border-radius:12px;padding:16px;max-width:260px;text-align:center}
+.success-icon{font-size:40px;margin-bottom:8px}
+.success-title{font-size:16px;font-weight:900;color:#15803d;margin-bottom:8px}
+.success-info{background:#f0fdf4;border-radius:8px;padding:10px;font-size:13px;color:#1e293b;text-align:left;margin-bottom:12px;line-height:1.8}
+.success-note{font-size:12px;color:#64748b;line-height:1.6}
+
+/* 打字指示器 */
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 13px;background:#fff;border-radius:14px;width:60px}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:#94a3b8;animation:typing 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+
+/* LINE底部輸入 */
+.chat-input-bar{background:#fff;border-top:1px solid #e2e8f0;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chat-input{flex:1;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:14px;background:#f8fafc;color:#1e293b}
+.chat-input:focus{outline:none;border-color:#06C755}
+.chat-send{padding:8px 16px;background:#06C755;color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* 系統訊息 */
+.sys-msg{text-align:center;font-size:11px;color:#94a3b8;padding:4px 10px;background:rgba(0,0,0,.05);border-radius:10px;align-self:center}
+
+/* 情境切換按鈕 */
+.scenario-tabs{display:flex;gap:8px;margin-bottom:20px}
+.scenario-tab{flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#94a3b8;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;line-height:1.4}
+.scenario-tab:hover{border-color:#06C755;color:#e2e8f0}
+.scenario-tab.active{background:rgba(6,199,85,.15);border-color:#06C755;color:#06C755}
+
+/* Rich Menu (大按鈕) */
+.rich-menu{display:flex;gap:6px;max-width:260px;margin-top:8px}
+.rich-btn{flex:1;padding:14px 8px;border-radius:12px;border:2px solid #06C755;background:#fff;color:#06C755;font-size:13px;font-weight:800;cursor:pointer;text-align:center;line-height:1.4;transition:all .15s}
+.rich-btn:hover{background:#06C755;color:#fff}
+.rich-btn:disabled{border-color:#d1d5db;color:#9ca3af;cursor:not-allowed;background:#f9f9f9}
+
+/* 到診確認卡 */
+.checkin-card{background:#fff;border-radius:12px;padding:14px;max-width:260px;border:2px solid #06C755}
+.checkin-card-title{font-size:13px;font-weight:900;color:#15803d;margin-bottom:10px}
+.checkin-row{display:flex;gap:8px;margin-bottom:7px;font-size:13px}
+.checkin-label{color:#64748b;width:52px;flex-shrink:0}
+.checkin-value{color:#1e293b;font-weight:700;flex:1}
+
+/* 到診成功卡 */
+.success-checkin-card{background:#fff;border-radius:12px;padding:16px;max-width:260px}
+.success-checkin-icon{font-size:36px;margin-bottom:8px;text-align:center}
+.success-checkin-title{font-size:15px;font-weight:900;color:#15803d;margin-bottom:8px;text-align:center}
+.success-checkin-info{background:#f0fdf4;border-radius:8px;padding:10px;font-size:13px;color:#1e293b;line-height:1.8;margin-bottom:8px}
+.success-checkin-note{font-size:12px;color:#64748b;line-height:1.6;text-align:center}
+
+/* O2WIN 後台通知 */
+.o2win-notify{margin-top:16px;background:rgba(6,199,85,.12);border:1.5px solid #06C755;border-radius:10px;padding:12px;font-size:12px;color:#d1fae5;line-height:1.7;opacity:0;transition:opacity .5s ease;position:relative}
+.o2win-notify.visible{opacity:1}
+.o2win-notify-title{font-size:11px;font-weight:900;color:#06C755;margin-bottom:6px;letter-spacing:.5px}
+.o2win-notify-badge{display:inline-block;background:#06C755;color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:900;margin-right:4px}
+</style>
+</head>
+<body>
+
+<!-- 左側說明 -->
+<div class="info-panel">
+  <div class="info-logo">⬡ O2WIN × LINE</div>
+  <div class="info-sub">病患透過 LINE 官方帳號完成互動流程示範。<br>點擊右側手機中的選項來體驗流程。</div>
+
+  <!-- 情境切換 -->
+  <div class="scenario-tabs">
+    <div class="scenario-tab active" id="tab1" onclick="switchScenario(1)">情境一<br>LINE 預約諮詢</div>
+    <div class="scenario-tab" id="tab2" onclick="switchScenario(2)">情境二<br>到診打卡</div>
+  </div>
+
+  <!-- 情境一步驟（預設顯示） -->
+  <div class="step-list" id="stepList">
+    <div class="step-item active" data-step="0">
+      <div class="step-num">1</div>
+      <div class="step-text">病患傳送<br><strong>「我要預約」</strong></div>
+    </div>
+    <div class="step-item" data-step="1">
+      <div class="step-num">2</div>
+      <div class="step-text">選擇<strong>諮詢類型</strong><br>TMJ / 矯正 / 早期矯正</div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-num">3</div>
+      <div class="step-text">選擇<strong>預約日期</strong><br>即時顯示可用／額滿狀態</div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-num">4</div>
+      <div class="step-text">選擇<strong>時段</strong></div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-num">5</div>
+      <div class="step-text">填寫<strong>姓名 / 電話 / 主訴</strong></div>
+    </div>
+    <div class="step-item" data-step="5">
+      <div class="step-num">6</div>
+      <div class="step-text"><strong>確認預約</strong>完成<br>自動發送確認通知</div>
+    </div>
+  </div>
+
+  <!-- 情境二步驟（預設隱藏） -->
+  <div class="step-list" id="stepList2" style="display:none">
+    <div class="step-item active" data-step="0">
+      <div class="step-num">1</div>
+      <div class="step-text">病患打開<br><strong>LINE 官方帳號</strong></div>
+    </div>
+    <div class="step-item" data-step="1">
+      <div class="step-num">2</div>
+      <div class="step-text">點選<strong>「到診打卡」</strong></div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-num">3</div>
+      <div class="step-text">系統<strong>比對今日預約</strong></div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-num">4</div>
+      <div class="step-text">確認身份後<strong>完成打卡</strong></div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-num">5</div>
+      <div class="step-text">O2WIN 後台<strong>自動更新候診</strong></div>
+    </div>
+  </div>
+
+  <button class="restart-btn" id="restartBtn" onclick="restartCurrentScenario()">↺ 重新播放</button>
+
+  <!-- 情境一說明 -->
+  <div class="note-box" id="noteBox1" style="margin-top:16px">
+    📌 <strong>設計重點</strong><br>
+    • 額滿時段病患看不到或顯示禁止選<br>
+    • 所有選項根據「LINE諮詢時段」設定即時生成<br>
+    • 完成後助理收到通知，自動進入今日戰情<br>
+    • 24小時前自動發送提醒訊息
+  </div>
+
+  <!-- 情境二說明（預設隱藏） -->
+  <div class="note-box" id="noteBox2" style="margin-top:16px;display:none">
+    📌 <strong>設計重點</strong><br>
+    • 到診即打卡，零人工操作<br>
+    • 系統自動比對當日預約資料<br>
+    • 打卡完成後助理端即時更新候診狀態<br>
+    • 早到／準時自動記錄時間戳
+  </div>
+
+  <!-- O2WIN 後台通知（情境二到診完成後顯示） -->
+  <div class="o2win-notify" id="o2winNotify" style="display:none">
+    <div class="o2win-notify-title">🖥 O2WIN 後台通知</div>
+    <span class="o2win-notify-badge">NEW</span>方○霞 已到診 11:28<br>
+    TMJ初診 / 診間B / 11:30 開始<br>
+    → 已自動移入<strong style="color:#6ee7b7">候診中</strong> ✓
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <a href="Prototype_v4.0.html" target="_blank" style="display:inline-block;background:#06C755;color:#fff;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:800;text-decoration:none">🖥 切換到主控台查看 →</a>
+      <a href="初診問卷_prototype.html" target="_blank" style="display:inline-block;background:rgba(255,255,255,.15);color:#d1fae5;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.3)">📋 初診問卷</a>
+    </div>
+  </div>
+</div>
+
+<!-- 手機外框 -->
+<div class="phone-frame">
+  <!-- 狀態列 -->
+  <div class="phone-status">
+    <div class="phone-back">‹</div>
+    <div class="phone-avatar">🦷</div>
+    <div class="phone-info">
+      <div class="phone-name">氧樂多牙醫診所</div>
+      <div class="phone-status-txt">LINE 官方帳號</div>
+    </div>
+    <div class="phone-menu">⋮</div>
+  </div>
+
+  <!-- 聊天區 -->
+  <div class="chat-bg" id="chatBg">
+    <div class="sys-msg">2026年5月15日</div>
+
+    <!-- 初始歡迎訊息 -->
+    <div class="msg-row">
+      <div class="bot-avatar">🦷</div>
+      <div>
+        <div class="bubble bot">您好！歡迎來到氧樂多牙醫診所 👋<br><br>我是診所的智慧預約助理，可以幫您：<br>• 預約諮詢時段<br>• 查詢預約狀態<br>• 聯絡診所<br><br>請問今天需要什麼協助？</div>
+        <div class="quick-btns">
+          <button class="qbtn" onclick="userSays('我要預約',0)">📅 我要預約</button>
+          <button class="qbtn" onclick="showToastMsg('功能建置中')">📋 查詢預約</button>
+          <button class="qbtn" onclick="showToastMsg('功能建置中')">📞 聯絡診所</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部輸入列 -->
+  <div class="chat-input-bar">
+    <input class="chat-input" type="text" placeholder="輸入訊息…" id="chatInput" onkeydown="if(event.key==='Enter')sendUserInput()">
+    <button class="chat-send" onclick="sendUserInput()">傳送</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastMsg" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999">訊息</div>
+
+<script>
+let currentStep=0;
+let currentScenario=1;
+let chosen={type:'',date:'',time:'',name:'',phone:'',chief:''};
+
+const chat=document.getElementById('chatBg');
+
+function scrollBottom(){setTimeout(()=>chat.scrollTop=chat.scrollHeight,100);}
+
+function showToastMsg(msg){
+  const t=document.getElementById('toastMsg');
+  t.textContent=msg;t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',2000);
+}
+
+function updateStepUI(n){
+  const listId=currentScenario===1?'stepList':'stepList2';
+  document.querySelectorAll('#'+listId+' .step-item').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i<n)el.classList.add('done');
+    if(i===n)el.classList.add('active');
+    el.querySelector('.step-num').textContent=i<n?'✓':(i+1);
+  });
+}
+
+function switchScenario(n){
+  currentScenario=n;
+  // 切換 tab 樣式
+  document.getElementById('tab1').classList.toggle('active',n===1);
+  document.getElementById('tab2').classList.toggle('active',n===2);
+  // 切換步驟列表
+  document.getElementById('stepList').style.display=n===1?'flex':'none';
+  document.getElementById('stepList2').style.display=n===2?'flex':'none';
+  // 切換說明
+  document.getElementById('noteBox1').style.display=n===1?'block':'none';
+  document.getElementById('noteBox2').style.display=n===2?'block':'none';
+  // 隱藏後台通知（切換時重置）
+  const notify=document.getElementById('o2winNotify');
+  notify.style.display='none';notify.classList.remove('visible');
+  // 播放對應情境
+  if(n===1) restartFlow();
+  else restartCheckinFlow();
+}
+
+function restartCurrentScenario(){
+  if(currentScenario===1) restartFlow();
+  else restartCheckinFlow();
+}
+
+function addMsg(html,side,delay=0,typingDuration=700){
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      if(side==='bot'){
+        // 打字指示器
+        const typingRow=document.createElement('div');
+        typingRow.className='msg-row';
+        typingRow.innerHTML=`<div class="bot-avatar">🦷</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+        chat.appendChild(typingRow);scrollBottom();
+        setTimeout(()=>{
+          typingRow.remove();
+          const row=document.createElement('div');
+          row.className='msg-row';
+          row.innerHTML=`<div class="bot-avatar">🦷</div><div>${html}</div>`;
+          chat.appendChild(row);scrollBottom();resolve(row);
+        },typingDuration);
+      } else {
+        const row=document.createElement('div');
+        row.className='msg-row user';
+        row.innerHTML=`<div class="msg-time">現在</div><div class="bubble user">${html}</div>`;
+        chat.appendChild(row);scrollBottom();resolve(row);
+      }
+    },delay);
+  });
+}
+
+function disableAllQbtns(){
+  document.querySelectorAll('.qbtn').forEach(b=>{b.disabled=true;b.style.opacity='.5';});
+}
+
+function userSays(text, nextStep){
+  disableAllQbtns();
+  addMsg(text,'user').then(()=>{
+    currentStep=nextStep+1;
+    updateStepUI(nextStep+1);
+    runStep(nextStep+1);
+  });
+}
+
+function runStep(step){
+  if(step===1) showTypeSelection();
+  else if(step===2) showDateSelection();
+  else if(step===3) showTimeSelection();
+  else if(step===4) showForm();
+  else if(step===5) showConfirmation();
+  else if(step===6) showSuccess();
+}
+
+function showTypeSelection(){
+  addMsg(`<div class="bubble bot">好的！請選擇您想預約的諮詢類型：</div>
+<div class="quick-btns" style="margin-top:6px">
+  <button class="qbtn" onclick="selectType('🔵 顳顎關節 TMJ')">🔵 顳顎關節 TMJ</button>
+  <button class="qbtn" onclick="selectType('🟢 齒顎矯正諮詢')">🟢 齒顎矯正諮詢</button>
+  <button class="qbtn" onclick="selectType('🟣 早期矯正親子')">🟣 早期矯正親子</button>
+</div>`,'bot',300);
+}
+
+function selectType(type){
+  chosen.type=type;
+  disableAllQbtns();
+  addMsg(type,'user').then(()=>{
+    currentStep=2;updateStepUI(2);
+    addMsg(`<div class="bubble bot">您選擇了 <strong>${type}</strong>，請選擇方便的預約日期：<br><span style="font-size:12px;color:#94a3b8">🟢 可預約 ｜ 🟡 僅剩1名 ｜ 🔴 已額滿 ｜ — 未開放</span></div>`,'bot',300).then(()=>{
+      setTimeout(()=>showCalendar(),400);
+    });
+  });
+}
+
+function showCalendar(){
+  const row=document.createElement('div');
+  row.className='msg-row';
+  row.innerHTML=`<div class="bot-avatar">🦷</div>
+  <div class="cal-picker">
+    <div class="cal-picker-title">2026年5月</div>
+    <div class="cal-days">
+      <div class="cal-day-hdr">一</div><div class="cal-day-hdr">二</div><div class="cal-day-hdr">三</div>
+      <div class="cal-day-hdr">四</div><div class="cal-day-hdr">五</div>
+      <div class="cal-day-hdr" style="color:#ef4444">六</div><div class="cal-day-hdr" style="color:#ef4444">日</div>
+      <!-- row 1: 空格 -->
+      <div class="cal-day off">—</div><div class="cal-day off">—</div><div class="cal-day off">—</div>
+      <div class="cal-day off">—</div><div class="cal-day off">—</div>
+      <div class="cal-day off" style="color:#ef4444">3</div><div class="cal-day off" style="color:#ef4444">4</div>
+      <!-- row 2 -->
+      <div class="cal-day avail" onclick="selectDate(this,'5/5（一）')">5</div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/6（二）')">6</div>
+      <div class="cal-day off">7<br><span style="font-size:9px">休</span></div>
+      <div class="cal-day full" title="已額滿">8<br><span style="font-size:9px">滿</span></div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/9（五）')">9</div>
+      <div class="cal-day off" style="color:#ef4444">10</div><div class="cal-day off" style="color:#ef4444">11</div>
+      <!-- row 3 -->
+      <div class="cal-day avail" onclick="selectDate(this,'5/12（一）')">12</div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/13（二）')" style="position:relative">13<span style="position:absolute;top:1px;right:2px;font-size:8px;color:#f59e0b">剩1</span></div>
+      <div class="cal-day off">14<br><span style="font-size:9px">休</span></div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/15（四）')">15</div>
+      <div class="cal-day today" onclick="selectDate(this,'5/16（五）今天')">16<span style="font-size:9px;display:block">今天</span></div>
+      <div class="cal-day off" style="color:#ef4444">17</div><div class="cal-day off" style="color:#ef4444">18</div>
+      <!-- row 4 -->
+      <div class="cal-day avail" onclick="selectDate(this,'5/19（一）')">19</div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/20（二）')">20</div>
+      <div class="cal-day off">21<br><span style="font-size:9px">休</span></div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/22（四）')">22</div>
+      <div class="cal-day avail" onclick="selectDate(this,'5/23（五）')">23</div>
+      <div class="cal-day off" style="color:#ef4444">24</div><div class="cal-day off" style="color:#ef4444">25</div>
+    </div>
+  </div>`;
+  chat.appendChild(row);scrollBottom();
+}
+
+function selectDate(el,date){
+  if(el.classList.contains('off')||el.classList.contains('full'))return;
+  chosen.date=date;
+  document.querySelectorAll('.cal-day.selected').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+  setTimeout(()=>{
+    disableAllQbtns();
+    // 灰化所有日曆格
+    document.querySelectorAll('.cal-day.avail,.cal-day.today').forEach(d=>{
+      d.style.pointerEvents='none';d.style.opacity='.6';
+    });
+    addMsg(date,'user').then(()=>{
+      currentStep=3;updateStepUI(3);
+      addMsg(`<div class="bubble bot">您選擇了 <strong>${date}</strong>，<br>以下是當天可用的時段：</div>`,'bot',300).then(()=>{
+        setTimeout(showTimeSlots,400);
+      });
+    });
+  },200);
+}
+
+function showTimeSlots(){
+  const row=document.createElement('div');
+  row.className='msg-row';
+  const slots=[
+    {t:'10:00',status:'avail'},
+    {t:'10:30',status:'full'},
+    {t:'11:00',status:'avail'},
+    {t:'11:30',status:'avail'},
+    {t:'20:00',status:'avail'},
+    {t:'20:30',status:'full'},
+    {t:'21:00',status:'avail'},
+  ];
+  const btns=slots.map(s=>`
+    <div class="time-slot ${s.status}" onclick="${s.status==='avail'?`selectTime(this,'${s.t}')`:''}"
+      title="${s.status==='full'?'此時段已額滿':'點擊選擇'}">
+      ${s.t}${s.status==='full'?'<br><span style="font-size:10px">額滿</span>':''}
+    </div>`).join('');
+  row.innerHTML=`<div class="bot-avatar">🦷</div>
+  <div>
+    <div class="time-picker">${btns}</div>
+  </div>`;
+  chat.appendChild(row);scrollBottom();
+}
+
+function selectTime(el,time){
+  chosen.time=time;
+  document.querySelectorAll('.time-slot').forEach(t=>{t.style.pointerEvents='none';t.style.opacity='.6';});
+  el.classList.add('selected');el.style.opacity='1';
+  addMsg(time,'user').then(()=>{
+    currentStep=4;updateStepUI(4);
+    addMsg(`<div class="bubble bot">好的！請填寫您的基本資料：</div>`,'bot',300).then(()=>{
+      setTimeout(showFormCard,400);
+    });
+  });
+}
+
+function showFormCard(){
+  const row=document.createElement('div');
+  row.className='msg-row';
+  row.innerHTML=`<div class="bot-avatar">🦷</div>
+  <div class="form-card">
+    <div class="form-field">
+      <label class="form-label">姓名 *</label>
+      <input class="form-input" id="fi-name" type="text" placeholder="請輸入真實姓名">
+    </div>
+    <div class="form-field">
+      <label class="form-label">聯絡電話 *</label>
+      <input class="form-input" id="fi-phone" type="tel" placeholder="09xx-xxx-xxx">
+    </div>
+    <div class="form-field">
+      <label class="form-label">主要困擾 / 主訴</label>
+      <input class="form-input" id="fi-chief" type="text" placeholder="例：下巴卡卡、牙齒歪…">
+      <div class="form-hint">幫助醫師提前了解您的狀況</div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">過去是否曾接受矯正治療？</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer">
+          <input type="radio" name="prev" value="no" checked> 沒有
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer">
+          <input type="radio" name="prev" value="yes"> 有
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer">
+          <input type="radio" name="prev" value="unsure"> 不確定
+        </label>
+      </div>
+    </div>
+    <button class="form-submit" onclick="submitForm()">送出預約資料 →</button>
+  </div>`;
+  chat.appendChild(row);scrollBottom();
+}
+
+function submitForm(){
+  const name=document.getElementById('fi-name')?.value.trim();
+  const phone=document.getElementById('fi-phone')?.value.trim();
+  if(!name){showToastMsg('請填寫姓名');return;}
+  if(!phone){showToastMsg('請填寫聯絡電話');return;}
+  chosen.name=name;chosen.phone=phone;
+  chosen.chief=document.getElementById('fi-chief')?.value.trim()||'未填寫';
+  // 灰化表單
+  document.querySelectorAll('.form-input').forEach(i=>i.disabled=true);
+  document.querySelector('.form-submit').disabled=true;
+  document.querySelector('.form-submit').textContent='已送出 ✓';
+  addMsg(`${name} ／ ${phone}`,'user').then(()=>{
+    currentStep=5;updateStepUI(5);
+    addMsg(`<div class="bubble bot">感謝！請確認您的預約資訊：</div>`,'bot',300).then(()=>{
+      setTimeout(showConfirmCard,400);
+    });
+  });
+}
+
+function showConfirmCard(){
+  const row=document.createElement('div');
+  row.className='msg-row';
+  row.innerHTML=`<div class="bot-avatar">🦷</div>
+  <div class="confirm-card">
+    <div class="confirm-card-title">✅ 預約確認單</div>
+    <div class="confirm-row"><span class="confirm-label">類型</span><span class="confirm-value">${chosen.type}</span></div>
+    <div class="confirm-row"><span class="confirm-label">日期</span><span class="confirm-value">${chosen.date}</span></div>
+    <div class="confirm-row"><span class="confirm-label">時間</span><span class="confirm-value">${chosen.time}</span></div>
+    <div class="confirm-row"><span class="confirm-label">姓名</span><span class="confirm-value">${chosen.name}</span></div>
+    <div class="confirm-row"><span class="confirm-label">電話</span><span class="confirm-value">${chosen.phone}</span></div>
+    <div class="confirm-row"><span class="confirm-label">主訴</span><span class="confirm-value">${chosen.chief}</span></div>
+    <div style="font-size:12px;color:#64748b;margin-top:8px;border-top:1px solid #f1f5f9;padding-top:8px">📍 台南市東區……（診所地址）<br>❗ 請提前 10 分鐘到診</div>
+    <div class="confirm-actions">
+      <button class="confirm-btn-yes" onclick="confirmBooking()">✅ 確認預約</button>
+      <button class="confirm-btn-no" onclick="showToastMsg('請重新從步驟開始')">✏️ 修改</button>
+    </div>
+  </div>`;
+  chat.appendChild(row);scrollBottom();
+}
+
+function confirmBooking(){
+  document.querySelectorAll('.confirm-btn-yes,.confirm-btn-no').forEach(b=>b.disabled=true);
+  addMsg('確認預約','user').then(()=>{
+    currentStep=6;updateStepUI(6);
+    addMsg(`<div class="bubble bot">✅ <strong>預約成功！</strong><br>助理會在工作時間內與您確認，謝謝 🙏</div>`,'bot',400).then(()=>{
+      setTimeout(showSuccessCard,600);
+    });
+  });
+}
+
+function showSuccessCard(){
+  const row=document.createElement('div');
+  row.className='msg-row';
+  row.innerHTML=`<div class="bot-avatar">🦷</div>
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">預約完成！</div>
+    <div class="success-info">
+      📅 ${chosen.date} ${chosen.time}<br>
+      🦷 ${chosen.type}<br>
+      👤 ${chosen.name}<br>
+      📞 ${chosen.phone}
+    </div>
+    <div class="success-note">
+      • 診所助理確認後您會收到通知<br>
+      • 預約前 24 小時將自動發送提醒<br>
+      • 需取消請提前 24 小時告知<br><br>
+      <strong style="color:#0284c7">傳送「查詢預約」可隨時查看狀態</strong>
+    </div>
+  </div>`;
+  chat.appendChild(row);scrollBottom();
+  // 24hr提醒模擬
+  setTimeout(()=>{
+    const reminderRow=document.createElement('div');
+    reminderRow.innerHTML=`<div class="sys-msg" style="margin-top:8px">— 系統自動提醒（預約前24小時） —</div>`;
+    chat.appendChild(reminderRow);
+    addMsg(`<div class="bubble bot">⏰ <strong>就診提醒</strong><br><br>您明天 <strong>${chosen.time}</strong> 在氧樂多牙醫診所有 <strong>${chosen.type}</strong> 預約。<br><br>📍 請提前 10 分鐘到診<br>📋 建議攜帶過去 X 光片（如有）<br><br>如需取消或更改，請回覆此訊息。</div>`,'bot',800);
+    scrollBottom();
+  },3000);
+}
+
+function sendUserInput(){
+  const input=document.getElementById('chatInput');
+  const val=input.value.trim();
+  if(!val)return;
+  input.value='';
+  if(currentStep===0||(val.includes('預約')||val.includes('諮詢'))){
+    disableAllQbtns();
+    addMsg(val,'user').then(()=>{
+      currentStep=1;updateStepUI(1);
+      showTypeSelection();
+    });
+  } else {
+    addMsg(val,'user').then(()=>{
+      addMsg(`<div class="bubble bot">您好！我收到您的訊息了。<br>如需預約諮詢，請點選下方選項 👇</div>
+<div class="quick-btns" style="margin-top:6px">
+  <button class="qbtn" onclick="userSays('我要預約',0)">📅 我要預約</button>
+  <button class="qbtn" onclick="showToastMsg('功能建置中')">📋 查詢預約</button>
+</div>`,'bot',300);
+    });
+  }
+}
+
+function restartFlow(){
+  currentStep=0;chosen={type:'',date:'',time:'',name:'',phone:'',chief:''};
+  currentScenario=1;
+  updateStepUI(0);
+  chat.innerHTML=`
+    <div class="sys-msg">2026年5月15日</div>
+    <div class="msg-row">
+      <div class="bot-avatar">🦷</div>
+      <div>
+        <div class="bubble bot">您好！歡迎來到氧樂多牙醫診所 👋<br><br>我是診所的智慧預約助理，可以幫您：<br>• 預約諮詢時段<br>• 查詢預約狀態<br>• 聯絡診所<br><br>請問今天需要什麼協助？</div>
+        <div class="quick-btns">
+          <button class="qbtn" onclick="userSays('我要預約',0)">📅 我要預約</button>
+          <button class="qbtn" onclick="showToastMsg('功能建置中')">📋 查詢預約</button>
+          <button class="qbtn" onclick="showToastMsg('功能建置中')">📞 聯絡診所</button>
+        </div>
+      </div>
+    </div>`;
+  scrollBottom();
+}
+
+/* ═══════════════════════════════════════
+   情境二：到診打卡
+═══════════════════════════════════════ */
+
+function restartCheckinFlow(){
+  currentStep=0;
+  currentScenario=2;
+  // 隱藏後台通知
+  const notify=document.getElementById('o2winNotify');
+  notify.style.display='none';notify.classList.remove('visible');
+  updateStepUI(0);
+  chat.innerHTML=`<div class="sys-msg">2026年5月15日</div>`;
+  // Bot 歡迎訊息 + Rich Menu
+  setTimeout(()=>{
+    const row=document.createElement('div');
+    row.className='msg-row';
+    row.innerHTML=`<div class="bot-avatar">🦷</div>
+    <div>
+      <div class="bubble bot">⬡ 氧樂多牙醫診所<br>歡迎光臨！請問您今天有預約嗎？</div>
+      <div class="rich-menu" style="margin-top:8px">
+        <button class="rich-btn" id="richCheckin" onclick="checkinStep1()">✅ 我有預約<br>到診打卡</button>
+        <button class="rich-btn" onclick="showToastMsg('請切換至情境一體驗預約流程')">📋 我要預約<br>諮詢</button>
+      </div>
+    </div>`;
+    chat.appendChild(row);scrollBottom();
+  },500);
+}
+
+function checkinStep1(){
+  // 停用 rich menu
+  document.querySelectorAll('.rich-btn').forEach(b=>{b.disabled=true;b.style.opacity='.5';});
+  addMsg('我有預約，到診打卡','user').then(()=>{
+    currentStep=1;updateStepUI(1);
+    // Bot 輸入中 1200ms 後顯示預約確認
+    addMsg(`<div class="checkin-card">
+      <div class="checkin-card-title">✅ 查詢到您今日的預約！</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px">📋 預約確認</div>
+      <div class="checkin-row"><span class="checkin-label">👤 姓名</span><span class="checkin-value">方○霞 小姐</span></div>
+      <div class="checkin-row"><span class="checkin-label">🦷 項目</span><span class="checkin-value">TMJ顳顎關節初診</span></div>
+      <div class="checkin-row"><span class="checkin-label">📅 日期</span><span class="checkin-value">2026年5月15日（五）</span></div>
+      <div class="checkin-row"><span class="checkin-label">⏰ 時間</span><span class="checkin-value">11:30 – 13:00（90分）</span></div>
+      <div class="checkin-row"><span class="checkin-label">📍 診間</span><span class="checkin-value">診間 B</span></div>
+      <div style="font-size:13px;color:#1e293b;margin-top:10px;font-weight:600">請問您現在到診了嗎？</div>
+      <div class="quick-btns" style="margin-top:8px">
+        <button class="qbtn" id="btnYesArrived" onclick="checkinStep2()">✅ 是的，我到了！</button>
+        <button class="qbtn" onclick="checkinNotMe()">❌ 不是我</button>
+      </div>
+    </div>`,'bot',400,1200).then(()=>{
+      currentStep=2;updateStepUI(2);
+    });
+  });
+}
+
+function checkinNotMe(){
+  document.querySelectorAll('.qbtn').forEach(b=>{b.disabled=true;b.style.opacity='.5';});
+  addMsg('不是我','user').then(()=>{
+    addMsg(`<div class="bubble bot">了解！請提供您的姓名或電話，讓我重新查詢 🔍</div>`,'bot',300);
+  });
+}
+
+function checkinStep2(){
+  document.querySelectorAll('.qbtn').forEach(b=>{b.disabled=true;b.style.opacity='.5';});
+  addMsg('是的，我到了！','user').then(()=>{
+    currentStep=3;updateStepUI(3);
+    addMsg(`<div class="success-checkin-card">
+      <div class="success-checkin-icon">✅</div>
+      <div class="success-checkin-title">到診成功！</div>
+      <div class="success-checkin-info">
+        ⏰ 到診時間：<strong>11:28</strong><br>
+        📊 比預約早 <strong>2 分鐘</strong>
+      </div>
+      <div class="success-checkin-note">
+        助理已收到通知，請稍候～<br>
+        診所助理會在您準備好時呼叫您 😊<br><br>
+        <span style="color:#64748b">如有需要可以先在候診區休息。</span>
+      </div>
+    </div>`,'bot',500,1000).then(()=>{
+      currentStep=4;updateStepUI(4);
+      // 顯示後台通知
+      setTimeout(showO2WinNotify, 800);
+    });
+  });
+}
+
+function showO2WinNotify(){
+  const notify=document.getElementById('o2winNotify');
+  notify.style.display='block';
+  setTimeout(()=>notify.classList.add('visible'),50);
+  // 寫入 localStorage 供主控台讀取（跨頁面狀態同步）
+  localStorage.setItem('o2win_checkin',JSON.stringify({
+    name:'方○霞',arrivalTime:'11:28',
+    treatment:'TMJ顳顎關節初診',room:'診間B',
+    apptTime:'11:30',timestamp:Date.now()
+  }));
+}
+</script>
+</body>
+</html>
