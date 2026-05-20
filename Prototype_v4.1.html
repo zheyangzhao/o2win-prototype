@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>O2WIN 診所作業系統 v4.1</title>
+<title>O2WIN 診所作業系統 v4.1.2</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;color:#1e293b;font-size:15px;height:100vh;display:flex;flex-direction:column}
@@ -798,11 +798,25 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
 	.oc-script-title{font-size:12px;font-weight:900;color:#1e293b;margin-bottom:5px}
 	.oc-script-text{font-size:12px;color:#475569;line-height:1.6;white-space:pre-line}
 	.oc-action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+	.role-select{background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:8px;padding:5px 8px;font-size:12px;font-weight:800;color:#334155;max-width:124px}
+	.permission-banner{display:none;background:#fff7ed;border-bottom:1px solid #fed7aa;color:#9a3412;font-size:12px;font-weight:700;padding:7px 24px}
+	.permission-banner.show{display:block}
+	.masked-sensitive{color:#94a3b8!important;font-weight:800!important;letter-spacing:1px}
+	.admin-wrap{height:calc(100vh - 52px);overflow-y:auto;background:#f8fafc;padding:22px 26px}
+	.admin-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:16px}
+	.admin-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px}
+	.admin-title{font-size:16px;font-weight:900;color:#1e293b;margin-bottom:10px}
+	.permission-table{width:100%;border-collapse:collapse;font-size:13px}
+	.permission-table th{background:#f8fafc;color:#64748b;font-size:12px;text-align:left;padding:9px 10px;border-bottom:2px solid #e2e8f0}
+	.permission-table td{padding:10px;border-bottom:1px solid #f1f5f9}
+	.perm-ok{color:#16a34a;font-weight:900}.perm-no{color:#cbd5e1;font-weight:900}
+	.ocr-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+	.ocr-step{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:12px;color:#475569;line-height:1.5}
 	</style>
 </head>
 <body>
 <div class="top-nav">
-  <div class="nav-logo">⬡ O2WIN 診所作業系統 <span class="version-badge">v4.1.1｜2026-05-20</span></div>
+  <div class="nav-logo">⬡ O2WIN 診所作業系統 <span class="version-badge">v4.1.2｜2026-05-20</span></div>
   <div class="nav-tabs">
     <div class="nav-tab active" onclick="showPanel('today')">🎯 今日戰情</div>
     <div class="nav-tab" onclick="showPanel('calendar')">📅 約診行事曆</div>
@@ -814,14 +828,22 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
     <div class="nav-tab" onclick="showPanel('recall')">📣 召回系統</div>
     <div class="nav-tab" onclick="showPanel('line')">💬 LINE訊息 <span style="background:#ef4444;color:#fff;border-radius:8px;padding:1px 6px;font-size:10px;font-weight:900;margin-left:4px">3</span></div>
     <div class="nav-tab" onclick="showPanel('checkin')">🕐 員工打卡</div>
+    <div class="nav-tab" onclick="showPanel('admin')">🔐 權限後台</div>
   </div>
   <div class="nav-right">
     <button onclick="openGSearch()" style="display:flex;align-items:center;gap:7px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px;color:#64748b;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='#0ea5e9';this.style.color='#0ea5e9'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#64748b'">🔍 搜尋<span style="font-size:11px;background:#e2e8f0;border-radius:4px;padding:1px 5px;margin-left:4px">⌘K</span></button>
     <span><span class="live-dot"></span>即時更新中</span>
     <span>🗓 2026年5月15日（五）</span>
-    <span>👤 助理 小莉</span>
+    <select class="role-select" id="roleSelect" onchange="setPermissionRole(this.value)" title="切換畫面權限">
+      <option value="chairside">診間模式</option>
+      <option value="assistant">助理</option>
+      <option value="frontdesk">櫃台收費</option>
+      <option value="supervisor">主管</option>
+      <option value="owner" selected>院長</option>
+    </select>
   </div>
 </div>
+<div class="permission-banner" id="permissionBanner">目前為診間/一般權限，費用與營運資料已遮蔽。</div>
 <!-- ══ TAB1 今日戰情 ══ -->
 <div class="panel active" id="panel-today">
 
@@ -882,10 +904,10 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
       <div class="rev-amount red" id="rev-pending">NT$10,000</div>
       <div class="rev-sub" id="rev-pending-sub">⚠️ 黃○雯 未結</div>
     </div>
-    <div class="rev-item">
-      <div class="rev-label">免費諮詢</div>
-      <div class="rev-amount" style="color:#64748b">2 筆</div>
-      <div class="rev-sub">初診免費</div>
+    <div class="rev-item" style="cursor:pointer" onclick="showPanel('ortho-consult')">
+      <div class="rev-label">評估追蹤</div>
+      <div class="rev-amount" style="color:#0f766e">6 筆</div>
+      <div class="rev-sub">7天待確認 2 ／即將到期 1</div>
     </div>
     <div class="rev-bar-wrap">
       <div class="rev-label" style="margin-bottom:6px">收款進度</div>
@@ -903,6 +925,7 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
     <div class="rev-item" style="border-right:none">
       <span class="rev-breakdown-btn" onclick="showPanel('reports')">→ 詳細報表</span>
       <button class="btn btn-line btn-xs" style="margin-top:8px;width:100%" onclick="openLiffModal()">📋 新病患問卷 QR</button>
+      <button class="btn btn-ghost btn-xs" style="margin-top:6px;width:100%" onclick="openOrthoConsultFromToday('dashboard')">🦷 矯正諮詢看板</button>
     </div>
   </div>
 
@@ -1153,6 +1176,7 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
             <div class="apptc-actions" onclick="event.stopPropagation()">
               <button class="btn btn-success btn-xs" onclick="showToast('方○霞 已到診 ✓','success')">到診 ✓</button>
               <button class="btn btn-warn btn-xs" onclick="showToast('確認通知已發送','success')">確認</button>
+              <button class="btn btn-primary btn-xs" onclick="openOrthoConsultFromToday('tmj')">🦷 追蹤</button>
               <button class="btn btn-xs" style="background:#7c3aed;color:#fff;border:none;cursor:pointer;border-radius:5px;padding:5px 10px;font-size:12px;font-weight:700" onclick="openModal('modal-treatment-plan')">📄 計劃書</button>
             </div>
           </div>
@@ -1553,6 +1577,7 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
       <div class="pt-subtab active" onclick="showPtTab(this,'progress')">治療進度</div>
       <div class="pt-subtab" onclick="showPtTab(this,'records')">就診紀錄</div>
       <div class="pt-subtab" onclick="showPtTab(this,'billing')">帳務</div>
+      <div class="pt-subtab" onclick="showPtTab(this,'consult')">🦷 諮詢追蹤</div>
       <div class="pt-subtab" onclick="showPtTab(this,'edu')">衛教 &amp; LINE</div>
       <div class="pt-subtab" onclick="showPtTab(this,'images')">🖼 影像記錄</div>
       <div class="pt-subtab" onclick="showPtTab(this,'tmj')">📈 TMJ追蹤</div>
@@ -1620,6 +1645,35 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
             <tr><td>2024-04-17</td><td>咬合板製作</td><td>12,000</td><td>分期3次</td><td><span class="tag tag-confirmed">已結清</span></td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- 諮詢追蹤 -->
+      <div id="ptsub-consult" style="display:none">
+        <div class="progress-card" style="border-left:4px solid #0f766e">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+            <div>
+              <div class="progress-title" style="margin:0">🦷 矯正 / TMJ 評估追蹤</div>
+              <div style="font-size:12px;color:#64748b;margin-top:4px">與「矯正諮詢」看板共用同一筆評估效期與抵扣狀態。</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openOrthoConsultFromPatient()">開啟諮詢看板</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+            <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:8px;padding:12px"><div style="font-size:20px;font-weight:900;color:#0f766e">NT$5,000</div><div style="font-size:12px;color:#64748b">評估套組費</div></div>
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px"><div style="font-size:20px;font-weight:900;color:#d97706">D+6</div><div style="font-size:12px;color:#64748b">七天抵扣剩餘</div></div>
+            <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px"><div style="font-size:20px;font-weight:900;color:#0284c7">2026-11-16</div><div style="font-size:12px;color:#64748b">資料效期</div></div>
+          </div>
+        </div>
+        <div class="progress-card">
+          <div class="progress-title">📋 追蹤時間軸</div>
+          <table class="visit-table">
+            <thead><tr><th>日期</th><th>事件</th><th>負責人</th><th>下一步</th></tr></thead>
+            <tbody>
+              <tr><td>2026-05-20</td><td>完成完整評估套組</td><td>趙醫師</td><td>助理發送 D+0 LINE 說明</td></tr>
+              <tr><td>2026-05-26</td><td>七天抵扣提醒</td><td>小莉</td><td>未回覆則電話確認</td></tr>
+              <tr><td>2026-09-20</td><td>四個月效期提醒</td><td>系統</td><td>LINE 自動推播</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- 衛教 & LINE -->
@@ -1794,6 +1848,7 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
     <button class="pt-action-btn primary" onclick="openNewApptModal()">📅 新增預約</button>
     <button class="pt-action-btn green" onclick="showToast('今日已看診，進入結算','success')">✅ 完成看診</button>
     <button class="pt-action-btn" style="background:#7c3aed;color:#fff" onclick="openModal('modal-treatment-plan')">📋 治療計劃書</button>
+    <button class="pt-action-btn" style="background:#0f766e;color:#fff" onclick="openOrthoConsultFromPatient()">🦷 諮詢追蹤</button>
     <button class="pt-action-btn line" onclick="showToast('LINE訊息視窗','info')">💬 發送LINE</button>
     <button class="pt-action-btn amber" onclick="showToast('發送衛教資料','info')">📚 發衛教資料</button>
     <button class="pt-action-btn ghost" onclick="showToast('開啟收費頁面','info')">💳 前往結算</button>
@@ -2126,6 +2181,13 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
         <tr><td>第4週（5/19–5/25）</td><td>28,000</td><td>8,000</td><td>5,000</td><td>3,000</td><td style="font-weight:800">44,000</td><td>8</td></tr>
       </tbody>
     </table>
+    <div class="report-stat-row" style="grid-template-columns:repeat(4,1fr);margin-top:16px">
+      <div class="report-stat" style="border-left:4px solid #0f766e"><div class="report-stat-num" style="color:#0f766e">42%</div><div class="report-stat-label">初診轉治療率</div></div>
+      <div class="report-stat" style="border-left:4px solid #f59e0b"><div class="report-stat-num" style="color:#d97706">6</div><div class="report-stat-label">七天內待確認</div></div>
+      <div class="report-stat" style="border-left:4px solid #22c55e"><div class="report-stat-num" style="color:#16a34a">35,000</div><div class="report-stat-label">評估費已抵扣</div></div>
+      <div class="report-stat" style="border-left:4px solid #ef4444"><div class="report-stat-num" style="color:#dc2626">3</div><div class="report-stat-label">六個月即將到期</div></div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="showPanel('ortho-consult')">🦷 開啟矯正諮詢追蹤看板</button>
   </div>
 
   <!-- 損益表 -->
@@ -3763,6 +3825,7 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
         <div class="lmt-cat-btn" onclick="filterTmplCat(this,'recall')">📞 召回</div>
         <div class="lmt-cat-btn" onclick="filterTmplCat(this,'edu')">📚 衛教</div>
         <div class="lmt-cat-btn" onclick="filterTmplCat(this,'appt')">📅 預約</div>
+        <div class="lmt-cat-btn" onclick="filterTmplCat(this,'consult')">🦷 諮詢</div>
         <div class="lmt-cat-btn" onclick="filterTmplCat(this,'care')">❤️ 關懷</div>
       </div>
       <!-- 模板卡片列表 -->
@@ -3809,6 +3872,22 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
           <div class="lmt-card-header"><span class="lmt-cat-tag" style="background:#fef9c3;color:#854d0e">📅 預約</span><span class="lmt-card-name">預約取消</span></div>
           <div class="lmt-card-preview">【O2Win 氧樂多牙醫】您的 {日期} 預約已取消。如需重新預約，請回覆此訊息或致電診所，感謝您的配合。</div>
           <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost btn-xs" onclick="previewTmpl(this)">👁 預覽</button><button class="btn btn-primary btn-xs" onclick="applyTmpl('【O2Win 氧樂多牙醫】您的預約已取消。如需重新預約，請回覆此訊息或致電診所，感謝您的配合。')">套用</button></div>
+        </div>
+        <!-- 諮詢 -->
+        <div class="lmt-card" data-cat="consult">
+          <div class="lmt-card-header"><span class="lmt-cat-tag" style="background:#ccfbf1;color:#0f766e">🦷 諮詢 D+0</span><span class="lmt-card-name">成人評估完成</span></div>
+          <div class="lmt-card-preview">今天完成的是完整評估套組，資料六個月內有效，七天內確認治療可抵扣評估費。</div>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost btn-xs" onclick="previewTmpl(this)">👁 預覽</button><button class="btn btn-primary btn-xs" onclick="applyTmpl('您好，今天完成的是完整評估套組。這份資料六個月內有效，七天內確認治療可抵扣評估費。')">套用</button></div>
+        </div>
+        <div class="lmt-card" data-cat="consult">
+          <div class="lmt-card-header"><span class="lmt-cat-tag" style="background:#ccfbf1;color:#0f766e">🦷 諮詢 D+7</span><span class="lmt-card-name">抵扣到期提醒</span></div>
+          <div class="lmt-card-preview">提醒您評估費可在諮詢後七天內確認治療時抵扣，明天是最後一天。</div>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost btn-xs" onclick="previewTmpl(this)">👁 預覽</button><button class="btn btn-primary btn-xs" onclick="applyTmpl('提醒您評估費可在諮詢後七天內確認治療時抵扣，明天是最後一天。有問題我們都可以協助說明。')">套用</button></div>
+        </div>
+        <div class="lmt-card" data-cat="consult">
+          <div class="lmt-card-header"><span class="lmt-cat-tag" style="background:#ccfbf1;color:#0f766e">🦷 諮詢 M4</span><span class="lmt-card-name">效期到期提醒</span></div>
+          <div class="lmt-card-preview">提醒您上次評估資料將在兩個月後到期，超過六個月口顎狀況可能改變，需要重新評估。</div>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-ghost btn-xs" onclick="previewTmpl(this)">👁 預覽</button><button class="btn btn-primary btn-xs" onclick="applyTmpl('提醒您上次評估資料將在兩個月後到期。超過六個月後，因口顎狀況可能改變，需要重新評估。')">套用</button></div>
         </div>
         <!-- 關懷 -->
         <div class="lmt-card" data-cat="care">
@@ -3975,6 +4054,52 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f8fafc;colo
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ══ TAB11 權限後台 ══ -->
+<div class="panel" id="panel-admin">
+  <div class="admin-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#1e293b">🔐 人員與使用權限後台</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px">診所營運系統以小公司權限設計：看診、櫃台、主管、院長分層控管。</div>
+      </div>
+      <button class="btn btn-primary" onclick="showToast('權限設定已儲存','success')">儲存設定</button>
+    </div>
+    <div class="admin-grid">
+      <div class="admin-card">
+        <div class="admin-title">角色權限矩陣</div>
+        <table class="permission-table">
+          <thead><tr><th>角色</th><th>病患資料</th><th>診間畫面</th><th>收費</th><th>營運報表</th><th>權限設定</th></tr></thead>
+          <tbody>
+            <tr><td><strong>院長</strong></td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td></tr>
+            <tr><td><strong>主管</strong></td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td></tr>
+            <tr><td><strong>櫃台收費</strong></td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-no">—</td><td class="perm-no">—</td></tr>
+            <tr><td><strong>助理</strong></td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-no">—</td><td class="perm-no">—</td><td class="perm-no">—</td></tr>
+            <tr><td><strong>診間模式</strong></td><td class="perm-ok">✓</td><td class="perm-ok">✓</td><td class="perm-no">—</td><td class="perm-no">—</td><td class="perm-no">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-card">
+        <div class="admin-title">營運模組後續規劃</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:#475569;line-height:1.6">
+          <div>✅ 病患與治療：預約、病歷、照片、治療計劃、LINE 照護。</div>
+          <div>✅ 財務與帳務：收款、未付款、評估費抵扣、收據列印。</div>
+          <div>🟡 人員管理：排班、打卡、請假、角色權限。</div>
+          <div>🟡 採購/發票/收據：拍照 OCR 轉文字後，由系統整理供審核。</div>
+        </div>
+      </div>
+    </div>
+    <div class="admin-card" style="margin-top:16px">
+      <div class="admin-title">收據 / 發票 / 採購單 OCR 流程</div>
+      <div class="ocr-flow">
+        <div class="ocr-step"><strong>1. 拍照上傳</strong><br>手機拍收據、發票、採購單或健保相關單據。</div>
+        <div class="ocr-step"><strong>2. OCR 轉文字</strong><br>擷取店家、日期、統編、品項、金額、稅額。</div>
+        <div class="ocr-step"><strong>3. 人工覆核</strong><br>主管或院長確認分類與金額，避免辨識錯誤入帳。</div>
+        <div class="ocr-step"><strong>4. 匯出整理</strong><br>輸出 Excel / CSV，後續可交給會計或接發票系統。</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4231,8 +4356,16 @@ function callInPatient(btn){
 
 	function showPanel(id){
 	  const key=String(id||'').replace(/^panel-/,'');
+	  if(key==='reports'&&!getRoleRule().ops){
+	    showToast('營運報表僅院長與主管可查看','warn');
+	    return;
+	  }
+	  if(key==='admin'&&!getRoleRule().admin){
+	    showToast('權限設定僅院長與主管可進入','warn');
+	    return;
+	  }
 	  const panel=document.getElementById('panel-'+key);
-	  const tabs=['today','calendar','patients','billing','reports','ortho-consult','schedule','recall','line','checkin'];
+	  const tabs=['today','calendar','patients','billing','reports','ortho-consult','schedule','recall','line','checkin','admin'];
 	  const tabIdx=tabs.indexOf(key);
 	  const navTabs=document.querySelectorAll('.nav-tab');
 	  if(!panel||tabIdx<0||!navTabs[tabIdx]){
@@ -4244,6 +4377,7 @@ function callInPatient(btn){
 	  navTabs.forEach(t=>t.classList.remove('active'));
 	  panel.classList.add('active');
 	  navTabs[tabIdx].classList.add('active');
+	  applyPermissionRole();
 	}
 	function showToast(msg,type='info'){
 	  const t=document.getElementById('toast');
@@ -4266,6 +4400,68 @@ function callInPatient(btn){
 	  return true;
 	}
 function toggleChip(el){el.classList.toggle('active');}
+
+// ══ 角色與權限遮罩 ══
+const ROLE_RULES={
+  chairside:{label:'診間模式',finance:false,ops:false,admin:false},
+  assistant:{label:'助理',finance:false,ops:false,admin:false},
+  frontdesk:{label:'櫃台收費',finance:true,ops:false,admin:false},
+  supervisor:{label:'主管',finance:true,ops:true,admin:true},
+  owner:{label:'院長',finance:true,ops:true,admin:true}
+};
+let currentRole='chairside';
+function getRoleRule(){return ROLE_RULES[currentRole]||ROLE_RULES.chairside;}
+function setPermissionRole(role){
+  currentRole=ROLE_RULES[role]?role:'chairside';
+  localStorage.setItem('o2win_role',currentRole);
+  applyPermissionRole();
+  showToast('已切換為：'+getRoleRule().label,'info');
+}
+function markPermissionTargets(){
+  if(window.__o2winPermMarked)return;
+  const selectors=[
+    '.rev-amount','.rev-sub','#rev-bar-label','#rev-total',
+    '#panel-billing .bill-total-row span:last-child','#panel-billing .bill-subtotal span[id]','#panel-billing .pay-input','#panel-billing .pay-change-num','#panel-billing .pay-col span[id]',
+    '#panel-reports .report-stat-num','#panel-reports .charge-amt-cell','#panel-reports tfoot td','#panel-reports .unpaid-amount','#panel-reports text',
+    '#panel-ortho-consult .oc-money','#ocEvalFee','#ocNewType',
+    '#panel-patients #ptsub-billing td','#panel-patients #ptsub-billing .progress-card div[style*="font-size:20px"]','#panel-patients #ptsub-consult .progress-card div[style*="font-size:20px"]'
+  ];
+  selectors.forEach(sel=>document.querySelectorAll(sel).forEach(el=>{
+    if(el.dataset.permMarked)return;
+    el.dataset.permMarked='1';
+    el.dataset.originalText=el.textContent;
+    if('value' in el)el.dataset.originalValue=el.value;
+  }));
+  window.__o2winPermMarked=true;
+}
+function targetAllowed(el,rule){
+  if(el.closest('#panel-reports'))return rule.ops;
+  if(el.closest('#panel-admin'))return rule.admin;
+  return rule.finance;
+}
+function applyPermissionRole(){
+  markPermissionTargets();
+  const rule=getRoleRule();
+  const sel=document.getElementById('roleSelect');
+  if(sel&&sel.value!==currentRole)sel.value=currentRole;
+  const banner=document.getElementById('permissionBanner');
+  if(banner){
+    banner.classList.toggle('show',!rule.finance||!rule.ops);
+    banner.textContent=rule.label+'：費用與營運資料依權限顯示，未授權欄位以 — 呈現。';
+  }
+  document.querySelectorAll('[data-perm-marked="1"]').forEach(el=>{
+    const allowed=targetAllowed(el,rule);
+    if(allowed){
+      el.classList.remove('masked-sensitive');
+      if('value' in el&&el.dataset.originalValue!==undefined)el.value=el.dataset.originalValue;
+      else if(el.dataset.originalText!==undefined)el.textContent=el.dataset.originalText;
+    }else{
+      el.classList.add('masked-sensitive');
+      if('value' in el)el.value='—';
+      else el.textContent='—';
+    }
+  });
+}
 
 // ══ 召回次頁籤 ══
 function showRecallSubTab(tab){
@@ -4414,6 +4610,7 @@ function previewTmpl(btn){
 	  {icon:'👥',name:'病患管理',sub:'搜尋病患資料庫',badge:'頁面',bc:'#fef9c3',bt:'#854d0e',action:()=>{closeGSearch();showPanel('patients');}},
 	  {icon:'📊',name:'財務報表',sub:'月收入、損益分析',badge:'頁面',bc:'#fef9c3',bt:'#854d0e',action:()=>{closeGSearch();showPanel('reports');}},
 	  {icon:'🦷',name:'矯正諮詢',sub:'評估套組、七天抵扣、六個月效期追蹤',badge:'頁面',bc:'#ccfbf1',bt:'#0f766e',action:()=>{closeGSearch();showPanel('ortho-consult');}},
+	  {icon:'🔐',name:'權限後台',sub:'人員、角色、營運資料權限設定',badge:'後台',bc:'#fee2e2',bt:'#991b1b',action:()=>{closeGSearch();showPanel('admin');}},
 	  {icon:'👤',name:'陳○芳',sub:'TMJ 複診#11 · 2026-05-15',badge:'TMJ',bc:'#ede9fe',bt:'#6d28d9',action:()=>{closeGSearch();showToast('開啟 陳○芳 病歷','info');}},
   {icon:'👤',name:'王○明',sub:'恆牙矯正 複診#18 · 2026-05-19',badge:'矯正',bc:'#dbeafe',bt:'#1d4ed8',action:()=>{closeGSearch();showToast('開啟 王○明 病歷','info');}},
   {icon:'👤',name:'方○霞',sub:'TMJ 初診★ · 2026-05-20',badge:'TMJ',bc:'#ede9fe',bt:'#6d28d9',action:()=>{closeGSearch();showToast('開啟 方○霞 病歷','info');}},
@@ -4427,9 +4624,9 @@ function previewTmpl(btn){
 	  gsIdx=-1;
   if(!q.trim()){
 	    res.innerHTML=`<div class="gsearch-section">快速動作</div>`+
-	      GSEARCH_ALL.slice(0,7).map(itemHtml).join('')+
+	      GSEARCH_ALL.slice(0,8).map(itemHtml).join('')+
 	      `<div class="gsearch-section">病患 — 近期</div>`+
-	      GSEARCH_ALL.slice(7,10).map(itemHtml).join('');
+	      GSEARCH_ALL.slice(8,11).map(itemHtml).join('');
     return;
   }
   const hits=GSEARCH_ALL.filter(x=>x.name.includes(q)||x.sub.includes(q)||x.badge.includes(q));
@@ -4474,6 +4671,22 @@ function previewTmpl(btn){
 	}
 
 	// ══ 矯正諮詢價值與效期追蹤 ══
+	function openOrthoConsultFromToday(type){
+	  showPanel('ortho-consult');
+	  if(type==='tmj'){
+	    const tmj=document.querySelector('#ocList .oc-item[data-status="expire"]')||document.querySelector('#ocList .oc-item');
+	    if(tmj)selectOrthoConsult(tmj,'tmj');
+	  }else{
+	    showOrthoConsultView('detail');
+	  }
+	  showToast('已從今日戰情切到諮詢追蹤','info');
+	}
+	function openOrthoConsultFromPatient(){
+	  showPanel('ortho-consult');
+	  const first=document.querySelector('#ocList .oc-item');
+	  if(first)selectOrthoConsult(first,'adult');
+	  showToast('已開啟此病患的諮詢追蹤','info');
+	}
 	function showOrthoConsultView(view){
 	  ['detail','create','confirm','value'].forEach(v=>{
 	    const el=document.getElementById('oc-view-'+v);
@@ -5190,7 +5403,7 @@ function selectConv(el, name, meta, bg, color) {
   const badge = el.querySelector('.conv-unread');
   if (badge) badge.remove();
   // 清掉 nav badge
-  const navBadge = document.querySelector('.nav-tab:nth-child(8) span');
+  const navBadge = document.querySelector('.nav-tab[onclick*="line"] span');
   if (navBadge) { const n = parseInt(navBadge.textContent) - 1; if (n <= 0) navBadge.remove(); else navBadge.textContent = n; }
 }
 function filterConv(q) {
@@ -5216,6 +5429,8 @@ function sendLineMsg() {
   showToast('訊息已傳送 ✓', 'success');
 }
 document.addEventListener('DOMContentLoaded', () => {
+  currentRole=localStorage.getItem('o2win_role')||'owner';
+  applyPermissionRole();
   const li = document.getElementById('lineInput');
   if (li) li.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendLineMsg(); }
